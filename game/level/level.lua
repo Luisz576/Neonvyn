@@ -1,14 +1,16 @@
 local sti = require 'libraries.sti'
 local Player = require "game.level.entity.player"
+local Group = require "libraries.llove.component".Group
 
 local Level = {}
 Level.__index = Level
 
 function Level:new()
     local instance = {
-        player = Player:new(100, 100),
         gameMap = sti('maps/world_1.lua')
     }
+    instance.entitiesGroup = Group:new()
+    instance.player = Player:new(100, 100, {instance.entitiesGroup})
 
     -- TODO: load level
 
