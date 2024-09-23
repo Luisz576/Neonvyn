@@ -1,5 +1,6 @@
 local Sprite = require "libraries.llove.component.sprite"
-local Vector2D = require "libraries.llove.utils.vector2d"
+local Vector2D = require "libraries.llove.math.vector2d"
+local Rect = require "libraries.llove.component.rect"
 
 local Entity = {}
 Entity.__index = Entity
@@ -7,18 +8,21 @@ Entity.__index = Entity
 -- constructor
 function Entity:new(x, y, width, height, groups)
     local instance = Sprite:new(groups)
-    instance.pos = Vector2D:new(x, y)
+    instance.rect = Rect:new(x, y, width, height)
     instance.velocity = Vector2D:zero()
     instance.speed = 200
-    instance.width = width
-    instance.height = height
     return setmetatable(instance, Entity)
+end
+
+-- position
+function Entity:pos()
+    return Vector2D:new(self.rect.x, self.rect.y)
 end
 
 -- set position of entity
 function Entity:teleportTo(x, y)
-    self.pos.x = x
-    self.pos.y = y
+    self.rect.x = x
+    self.rect.y = y
 end
 
 -- return if player is moving
@@ -33,9 +37,9 @@ function Entity:_move(dt)
         self.velocity = self.velocity:normalize()
     end
     -- move in x
-    self.pos.x = self.pos.x + self.velocity.x * self.speed * dt
+    self.rect.x = self.rect.x + self.velocity.x * self.speed * dt
     -- move in y
-    self.pos.y = self.pos.y + self.velocity.y * self.speed * dt
+    self.rect.y = self.rect.y + self.velocity.y * self.speed * dt
 end
 
 -- update

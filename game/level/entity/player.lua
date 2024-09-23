@@ -1,6 +1,6 @@
 local love = require "love"
 local anim8 = require "libraries.anim8"
-local Direction = require "libraries.llove.utils.diretion"
+local Direction = require "libraries.llove.util.diretion"
 local Entity = require "game.level.entity.entity"
 
 local Player = {}
@@ -85,7 +85,7 @@ end
 
 -- draw
 function Player:draw()
-    self.sprite.anim:draw(self.sprite.spriteSheet, self.pos.x, self.pos.y, nil, self.sprite.scale)
+    self.sprite.anim:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
 end
 
 return Player
