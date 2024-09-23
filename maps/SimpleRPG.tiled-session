@@ -1,0 +1,48 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "world_1.tmx",
+    "expandedProjectPaths": [
+        "tilesets",
+        "."
+    ],
+    "fileStates": {
+        "tilesets/TopDownHouseFloorsAndWalls.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "world_1.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 233.5,
+                "y": 186.5
+            }
+        },
+        "world_1.tmx#Tileset_1": {
+            "scaleInDock": 1
+        }
+    },
+    "last.exportedFilePath": "D:/dev/love2d/SimpleRPG-love2d/maps",
+    "last.imagePath": "D:/dev/love2d/SimpleRPG-love2d/assets/tileset",
+    "map.lastUsedExportFilter": "Lua files (*.lua)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "openFiles": [
+        "world_1.tmx"
+    ],
+    "project": "SimpleRPG.tiled-project",
+    "recentFiles": [
+        "world_1.tmx",
+        "tilesets/TopDownHouseFloorsAndWalls.tsx"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

@@ -4,21 +4,21 @@ _G.love = require "love"
 -- Load function
 function love.load()
     -- imports
-    local Player = require "game.player"
+    local Level = require "game.level.level"
 
     -- prevent blurring when scale pixel
     love.graphics.setDefaultFilter("nearest", "nearest")
 
-    -- create the player
-    _G.player = Player:new(100, 100)
+    -- create the level
+    _G.level = Level:new()
 end
 
 -- Update function
 function love.update(dt)
-    player:update(dt)
+    level:update(dt)
 end
 
 -- Draw function
 function love.draw()
-    player:draw()
+    level:draw()
 end

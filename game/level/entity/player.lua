@@ -1,6 +1,6 @@
 local love = require "love"
 local anim8 = require "libraries.anim8"
-local Entity = require "game.entity"
+local Entity = require "game.level.entity.entity"
 local Direction = require "game.utils.diretion"
 
 local Player = {}
