@@ -1,6 +1,6 @@
-local Sprite = require "libraries.llove.component.sprite"
-local Vector2D = require "libraries.llove.math.vector2d"
-local Rect = require "libraries.llove.component.rect"
+local Sprite = require "libraries.llove.component".Sprite
+local Rect = require "libraries.llove.component".Rect
+local Vector2D = require "libraries.llove.math".Vector2D
 
 local Entity = {}
 Entity.__index = Entity
@@ -42,10 +42,21 @@ function Entity:_move(dt)
     self.rect.y = self.rect.y + self.velocity.y * self.speed * dt
 end
 
+-- collision
+function Entity:_collision()
+    for _, group in ipairs(Sprite.groups(self)) do
+        for _, sprite in ipairs(group.sprites()) do
+            print(sprite)
+        end
+    end
+end
+
 -- update
 function Entity:update(dt)
     -- moviment logic
     Entity._move(self, dt)
+    -- collision logic
+    Entity._collision(self)
 end
 
 return Entity
