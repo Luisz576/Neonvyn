@@ -1,16 +1,17 @@
 local love = require "love"
 local anim8 = require "libraries.anim8"
+local Direction = require "libraries.llove.utils.diretion"
 local Entity = require "game.level.entity.entity"
-local Direction = require "game.utils.diretion"
 
 local Player = {}
 Player.__index = Player
 
 -- constructor
-function Player:new(x, y)
-    local instance = Entity:new(x, y, 100, 100)
+function Player:new(x, y, groups)
+    local instance = Entity:new(x, y, 17, 25, groups)
 
     -- animationa
+    instance.sprite = {}
     instance.sprite.spriteSheet = love.graphics.newImage("assets/entities/player.png")
     instance.sprite.grid = anim8.newGrid(17, 25, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
     instance.sprite.scale = 2

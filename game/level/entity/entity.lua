@@ -1,24 +1,17 @@
+local Sprite = require "libraries.llove.component.sprite"
 local Vector2D = require "libraries.llove.utils.vector2d"
 
---- @class Entity
---- @field pos Vector2D
---- @field velocity Vector2D
---- @field speed number
---- @field sprite { width: number, height: number }
 local Entity = {}
 Entity.__index = Entity
 
 -- constructor
-function Entity:new(x, y, width, height)
-    local instance = {
-        pos = Vector2D:new(x, y),
-        velocity = Vector2D:zero(),
-        speed = 200,
-        sprite = {
-            width = width,
-            height = height
-        }
-    }
+function Entity:new(x, y, width, height, groups)
+    local instance = Sprite:new(groups)
+    instance.pos = Vector2D:new(x, y)
+    instance.velocity = Vector2D:zero()
+    instance.speed = 200
+    instance.width = width
+    instance.height = height
     return setmetatable(instance, Entity)
 end
 
