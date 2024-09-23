@@ -1,4 +1,10 @@
-local Vector2D = require "game.utils.vector2d"
+local Vector2D = require "libraries.llove.utils.vector2d"
+
+--- @class Entity
+--- @field pos Vector2D
+--- @field velocity Vector2D
+--- @field speed number
+--- @field sprite { width: number, height: number }
 local Entity = {}
 Entity.__index = Entity
 

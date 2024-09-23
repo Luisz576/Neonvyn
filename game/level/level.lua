@@ -1,7 +1,7 @@
 local sti = require 'libraries.sti'
 local Player = require "game.level.entity.player"
 
-Level = {}
+local Level = {}
 Level.__index = Level
 
 function Level:new()
