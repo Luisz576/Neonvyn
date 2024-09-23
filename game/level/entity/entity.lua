@@ -1,5 +1,5 @@
 local Sprite = require "libraries.llove.component".Sprite
-local Group = require "libraries.llove.component".Group
+local Groups = require "game.level.groups"
 local Rect = require "libraries.llove.component".Rect
 local Vector2D = require "libraries.llove.math".Vector2D
 
@@ -12,6 +12,7 @@ function Entity:new(x, y, width, height, groups)
     instance.rect = Rect:new(x, y, width, height)
     instance.velocity = Vector2D:zero()
     instance.speed = 200
+    instance.entityGroup = instance:getGroup(Groups.ENTITY)
     return setmetatable(instance, Entity)
 end
 
@@ -45,9 +46,11 @@ end
 
 -- collision
 function Entity:_collision()
-    for _, group in ipairs(Sprite.groups(self)) do
-        for _, sprite in ipairs(Group.sprites(group)) do
-            
+    if self.entityGroup ~= nil then
+        for _, sprite in ipairs(self.entityGroup:sprites()) do
+            if sprite ~= self then
+                -- ! TODO: entity colision
+            end
         end
     end
 end
