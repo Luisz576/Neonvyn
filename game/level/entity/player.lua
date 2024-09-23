@@ -2,6 +2,8 @@ local love = require "love"
 local anim8 = require "libraries.anim8"
 local Direction = require "libraries.llove.util".Direction
 local Entity = require "game.level.entity.entity"
+local Animation = require "libraries.llove.animation".Animation
+local AnimationController = require "libraries.llove.animation".AnimationController
 
 local Player = {}
 Player.__index = Player
@@ -15,22 +17,17 @@ function Player:new(x, y, groups)
     instance.sprite.spriteSheet = love.graphics.newImage("assets/entities/player.png")
     instance.sprite.grid = anim8.newGrid(17, 25, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
     instance.sprite.scale = 2
-    instance.sprite.animations = {
-        idle = {
-            down = anim8.newAnimation(instance.sprite.grid('1-6', 1), 0.2),
-            right = anim8.newAnimation(instance.sprite.grid('1-6', 2), 0.2),
-            up = anim8.newAnimation(instance.sprite.grid('1-6', 3), 0.2),
-            left = anim8.newAnimation(instance.sprite.grid('1-6', 4), 0.2)
-        },
-        walking = {
-            down = anim8.newAnimation(instance.sprite.grid('1-6', 5), 0.2),
-            right = anim8.newAnimation(instance.sprite.grid('1-6', 6), 0.2),
-            up = anim8.newAnimation(instance.sprite.grid('1-6', 7), 0.2),
-            left = anim8.newAnimation(instance.sprite.grid('1-6', 8), 0.2),
-        }
-    }
-    instance.sprite.anim = instance.sprite.animations.idle.down
-    instance.sprite.anim_direction = Direction.down
+    instance.sprite.animationController = AnimationController:new({
+        idle_down = Animation:new(instance.sprite.grid('1-6', 1)),
+        idle_right = Animation:new(instance.sprite.grid('1-6', 2)),
+        idle_up = Animation:new(instance.sprite.grid('1-6', 3)),
+        idle_left = Animation:new(instance.sprite.grid('1-6', 4)),
+        walking_down = Animation:new(instance.sprite.grid('1-6', 5)),
+        walking_right = Animation:new(instance.sprite.grid('1-6', 6)),
+        walking_up = Animation:new(instance.sprite.grid('1-6', 7)),
+        walking_left = Animation:new(instance.sprite.grid('1-6', 8)),
+    }, "idle_down", true)
+    instance.sprite.animationDirection = Direction.down
 
     return setmetatable(instance, Player)
 end
@@ -46,31 +43,28 @@ end
 
 -- animate
 function Player:_animate(dt)
-    local animation_name = "idle"
-    local animation_direction = self.sprite.anim_direction
+    local animationName = "idle"
+    local animationDirection = self.sprite.animationDirection
 
     -- is moving
     if Entity.isMoving(self) then
-        animation_name = "walking"
+        animationName = "walking"
     end
 
     -- animation direction
     if self.velocity.x > 0 then
-        animation_direction = Direction.right
+        animationDirection = Direction.right
     elseif self.velocity.x < 0 then
-        animation_direction = Direction.left
+        animationDirection = Direction.left
     elseif self.velocity.y > 0 then
-        animation_direction = Direction.down
+        animationDirection = Direction.down
     elseif self.velocity.y < 0 then
-        animation_direction = Direction.up
+        animationDirection = Direction.up
     end
     -- save direction
-    self.sprite.anim_direction = animation_direction
-
+    self.sprite.animationDirection = animationDirection
     -- set animation
-    self.sprite.anim = self.sprite.animations[animation_name][animation_direction]
-    -- update
-    self.sprite.anim:update(dt)
+    self.sprite.animationController:change(animationName .. "_" .. animationDirection)
 end
 
 -- update
@@ -79,13 +73,15 @@ function Player:update(dt)
     Player._input(self)
     -- animate
     Player._animate(self, dt)
+    -- update animation
+    self.sprite.animationController:update(dt)
     -- call super
     Entity.update(self, dt)
 end
 
 -- draw
 function Player:draw()
-    self.sprite.anim:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
+    self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
 end
 
 return Player
