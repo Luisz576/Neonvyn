@@ -14,23 +14,27 @@ local Slime = setmetatable({}, NPEntity)
 Slime.__index = Slime
 
 local SlimeData = {
-    normal = {
-        speed = 100,
+    NORMAL = {
+        -- attributes
+        speed = 80,
         width = 14,
         height = 10,
         hitboxRelationX = 1,
         hitboxRelationY = 1,
+        -- sprite and animation configuration
         spriteSheetPath = "assets/entities/slime.png",
         spriteFrameWidth = 20,
         spriteFrameHeight = 18,
         spriteScale = 2,
-        -- TODO: maybe change the view to be a rect and see the collision
-        goalsConfiguration = {
-            viewDistance = 250
-        },
         -- sprite fix when render
         spriteFixX = -6,
         spriteFixY = -12,
+        -- goals configuration
+        goalsConfiguration = {
+            viewDistance = 250
+        },
+        -- slime configuration
+        delayToMove = 1.6
     }
 }
 SlimeData.__index = SlimeData
@@ -38,6 +42,11 @@ SlimeData.__index = SlimeData
 -- constructor
 function Slime:new(x, y, groups, collisionGroups, slimeData)
     local instance = NPEntity:new(EntityType.SLIME, x, y, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY)
+
+    -- slime attributes
+    instance.slime = {}
+    instance.slime.delayToMove = slimeData.delayToMove
+    instance.slime.deltaMove = slimeData.delayToMove
 
     -- attributes
     instance.speed = slimeData.speed
@@ -90,14 +99,14 @@ function Slime:new(x, y, groups, collisionGroups, slimeData)
     instance.sprite.spriteFixX = slimeData.spriteFixX or 0
     instance.sprite.spriteFixY = slimeData.spriteFixY or 0
 
-    -- goals
+    -- slime goals
     instance.goalsConfiguration = slimeData.goalsConfiguration or {}
     Slime._registerGoals(instance)
 
     return setmetatable(instance, self)
 end
 
--- register goals
+-- register slime goals
 function Slime:_registerGoals()
     -- set_target_goal
     self:addGoal(SetTargetGoal:new(self, {Player}, {self.entityGroup}, self.goalsConfiguration.viewDistance))
@@ -125,6 +134,7 @@ function Slime:_animate(dt)
     elseif self.velocity.y < 0 then
         animationDirection = Direction.up
     end
+
     -- save direction
     self.sprite.direction = animationDirection
     -- set animation
@@ -137,14 +147,32 @@ end
 function Slime:update(dt)
     -- update animation
     self:_animate(dt)
+
+    -- update goals
+    self:updateGoals(dt)
+
+    -- slime behavior
+    -- jump delay
+    if not self.velocity:isZero() then
+        if self.slime.deltaMove > 0 then
+            self.slime.deltaMove = self.slime.deltaMove - dt
+            if self.slime.deltaMove > 0 then
+                self.velocity:set(0, 0)
+            end
+        else
+            if self.sprite.animationController:animation():remainingFrames() == 0 then
+                self.slime.deltaMove = self.slime.delayToMove
+            end
+        end
+    end
+
     -- super
     NPEntity.update(self, dt)
 end
 
 -- draw
 function Slime:draw()
-    local x, y = self.rect.x + self.sprite.spriteFixX, self.rect.y + self.sprite.spriteFixY
-    self.sprite.animationController:draw(self.sprite.spriteSheet, x, y, nil, self.sprite.scale)
+    self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x + self.sprite.spriteFixX, self.rect.y + self.sprite.spriteFixY, nil, self.sprite.scale)
 end
 
 return {
