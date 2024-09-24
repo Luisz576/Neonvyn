@@ -5,14 +5,18 @@ local AnimationController = require "libraries.llove.animation".AnimationControl
 local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 local Entity = require "game.level.entity.entity"
 local EntityType = require "game.level.entity.entity_type"
+local Hurtbox = require "game.components.hutbox"
 
 local Player = setmetatable({}, Entity)
 Player.__index = Player
 
 -- constructor
-function Player:new(x, y, groups, collisionGroups)
+function Player:new(x, y, groups, collisionGroups, damageHurtboxGroup)
     local scale = 2
-    local instance = Entity:new(EntityType.HUMAN, x, y, 17 * scale, 25 * scale, groups, collisionGroups, 1.2, 1.2)
+    local instance = Entity:new(EntityType.HUMAN, x, y, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1)
+
+    -- components
+    instance.hurtbox = Hurtbox:new(instance, x, y, 17 * scale, 25 * scale, damageHurtboxGroup, instance, "onHurtboxJoin", "onHurtboxQuit")
 
     -- animationa
     instance.sprite = {}
@@ -95,8 +99,20 @@ function Player:_animate(dt)
     self.sprite.animationController:update(dt)
 end
 
+-- onHurtbox join
+function Player:onHurtboxJoin(sprite)
+    print("join")
+end
+
+-- onHurtbox quit
+function Player:onHurtboxQuit(sprite)
+    print("quit")
+end
+
 -- update
 function Player:update(dt)
+    -- hurtbox
+    self.hurtbox:update()
     -- input
     self:_input()
     -- animate

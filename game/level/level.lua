@@ -13,11 +13,11 @@ function Level:new()
     }
     instance.groups.spritesRender = Groups.newGroup(Groups.SPRITES_RENDER)
     instance.groups.entitiesGroup = Groups.newGroup(Groups.ENTITY)
-    instance.player = Player:new(100, 100, {instance.groups.spritesRender, instance.groups.entitiesGroup}, {instance.groups.entitiesGroup})
+    instance.player = Player:new(100, 100, {instance.groups.spritesRender, instance.groups.entitiesGroup}, {}, {instance.groups.entitiesGroup})
 
     -- TODO: load level
 
-    Slime.Slime:new(400, 200, {instance.groups.spritesRender, instance.groups.entitiesGroup}, {instance.groups.entitiesGroup}, Slime.SlimeData.normal)
+    Slime.Slime:new(400, 200, {instance.groups.spritesRender, instance.groups.entitiesGroup}, {}, Slime.SlimeData.normal)
 
     return setmetatable(instance, self)
 end

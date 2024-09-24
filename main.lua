@@ -17,7 +17,7 @@ function love.update(dt)
     -- level update
     level:update(dt)
     -- show fps
-    print(Math.ffps(dt))
+    -- print(Math.ffps(dt))
 end
 
 -- Draw function
