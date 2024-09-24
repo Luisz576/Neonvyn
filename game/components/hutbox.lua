@@ -21,7 +21,9 @@ end
 
 -- update
 function Hurtbox:update()
+    -- update hutbox position
     self:setCenter(self.parent.rect:center())
+
     local sprites
     for _, group in pairs(self.groups) do
         sprites = group:sprites()

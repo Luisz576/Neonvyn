@@ -39,13 +39,11 @@ function NPEntity:removeGoal(goal)
 end
 
 -- update
-function NPEntity:update(dt)
+function NPEntity:updateGoals(dt)
     -- update goals
     for _, goal in pairs(self.goals) do
         goal:update(dt)
     end
-    -- super
-    Entity.update(self, dt)
 end
 
 return NPEntity
