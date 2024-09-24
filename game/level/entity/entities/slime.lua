@@ -1,17 +1,32 @@
-local love = require "love"
-local Direction = require "libraries.llove.util".Direction
 local Animation = require "libraries.llove.animation".Animation
-local AnimationController = require "libraries.llove.animation".AnimationController
 local AnimationGrid = require "libraries.llove.animation".AnimationGrid
-local Entity = require "game.level.entity.entity"
+local AnimationController = require "libraries.llove.animation".AnimationController
+local Direction = require "libraries.llove.util".Direction
+local NPEntity = require "game.level.entity.npentity"
+-- goals
+local ChaseTargetGoal = require "game.level.entity.ai.chase_target_goal"
 
-local Player = setmetatable({}, Entity)
-Player.__index = Player
+local Slime = setmetatable({}, NPEntity)
+Slime.__index = Slime
+
+local SlimeData = {
+    normal = {
+        speed = 100,
+        width = 20,
+        height = 20,
+        hitboxRelationX = 0.8,
+        hitboxRelationY = 0.8
+    }
+}
+SlimeData.__index = SlimeData
 
 -- constructor
-function Player:new(x, y, groups)
-    local instance = Entity:new(x, y, 17, 25, groups, 0.5, 0.5)
+function Slime:new(x, y, groups, slimeData)
+    local instance = NPEntity:new(x, y, slimeData.width, slimeData.height, groups, slimeData.hitboxRelationX, slimeData.hitboxRelationY)
 
+    -- attributes
+    instance.speed = slimeData.speed
+    
     -- animationa
     instance.sprite = {}
     instance.sprite.spriteSheet = love.graphics.newImage("assets/entities/player.png")
@@ -53,20 +68,19 @@ function Player:new(x, y, groups)
     }, "idle_down", true)
     instance.sprite.animationDirection = Direction.down
 
+    Slime._registerGoals(instance)
+
     return setmetatable(instance, self)
 end
 
--- input
-function Player:_input()
-    -- moviment controls
-    -- move in x
-    self.velocity.x = (love.keyboard.isDown("d") and 1 or 0) + (love.keyboard.isDown("a") and -1 or 0)
-    -- move in y
-    self.velocity.y = (love.keyboard.isDown("s") and 1 or 0) + (love.keyboard.isDown("w") and -1 or 0)
+-- register goals
+function Slime:_registerGoals()
+    -- chase_target_goal
+    self:addGoal(ChaseTargetGoal:new(self))
 end
 
 -- animate
-function Player:_animate(dt)
+function Slime:_animate(dt)
     local animationName = "idle"
     local animationDirection = self.sprite.animationDirection
 
@@ -94,18 +108,19 @@ function Player:_animate(dt)
 end
 
 -- update
-function Player:update(dt)
-    -- input
-    self:_input()
-    -- animate
+function Slime:update(dt)
+    -- update animation
     self:_animate(dt)
-    -- call super
-    Entity.update(self, dt)
+    -- super
+    NPEntity.update(self, dt)
 end
 
 -- draw
-function Player:draw()
+function Slime:draw()
     self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
 end
 
-return Player
+return {
+    Slime = Slime,
+    SlimeData = SlimeData
+}

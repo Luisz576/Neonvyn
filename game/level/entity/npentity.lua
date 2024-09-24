@@ -1,6 +1,6 @@
 local Entity = require "game.level.entity.entity"
 
-local NPEntity = {}
+local NPEntity = setmetatable({}, Entity)
 NPEntity.__index = NPEntity
 
 -- constructor
@@ -9,12 +9,22 @@ function NPEntity:new(x, y, width, height, groups, hitboxRelationX, hitboxRelati
 
     instance.goals = {}
 
-    return setmetatable(instance, NPEntity)
+    return setmetatable(instance, self)
 end
 
 -- add goal
 function NPEntity:addGoal(goal)
     table.insert(self.goals, goal)
+end
+
+-- get goal
+function NPEntity:getGoalByType(goal)
+    for i = 1, #self.goals, 1 do
+        if getmetatable(self.goals[i]) == goal then
+            return self.goals[i]
+        end
+    end
+    return nil
 end
 
 -- remove goal

@@ -1,9 +1,9 @@
 local Sprite = require "libraries.llove.component".Sprite
-local Groups = require "game.level.groups"
+local Groups = require "game.groups"
 local Rect = require "libraries.llove.component".Rect
 local Vector2D = require "libraries.llove.math".Vector2D
 
-local Entity = {}
+local Entity = setmetatable({}, Sprite)
 Entity.__index = Entity
 
 -- constructor
@@ -22,7 +22,7 @@ function Entity:new(x, y, width, height, groups, hitboxRelationX, hitboxRelation
     -- groups
     instance.entityGroup = instance:getGroup(Groups.ENTITY)
 
-    return setmetatable(instance, Entity)
+    return setmetatable(instance, self)
 end
 
 -- position
@@ -55,18 +55,13 @@ end
 
 -- collision
 function Entity:_collision()
-    if self.entityGroup ~= nil then
-        -- ! TODO: will really collide with entity groups?
-        for _, sprite in ipairs(self.entityGroup:sprites()) do
-            if sprite ~= self then
-                -- ! TODO: entity colision
-            end
-        end
-    end
+    -- ! TODO: collision logic
 end
 
 -- update
 function Entity:update(dt)
+    -- update z
+    self.z = self.rect:centerY()
     -- moviment logic
     Entity._move(self, dt)
     -- collision logic
