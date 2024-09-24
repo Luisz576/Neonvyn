@@ -10,7 +10,7 @@ Player.__index = Player
 
 -- constructor
 function Player:new(x, y, groups)
-    local instance = Entity:new(x, y, 17, 25, groups)
+    local instance = Entity:new(x, y, 17, 25, groups, 0.5, 0.5)
 
     -- animationa
     instance.sprite = {}

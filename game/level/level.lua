@@ -20,15 +20,25 @@ function Level:new()
 end
 
 function Level:update(dt)
-    -- player update
-    self.player:update(dt)
+    local sprites
+    -- entity update
+    sprites = self.groups.entitiesGroup:sprites()
+    for _, entity in pairs(sprites) do
+        entity:update(dt)
+    end
 end
 
 function Level:draw()
     -- TODO: look better
     self.gameMap:draw(0, 0, 2, 2)
-    -- player draw
-    self.player:draw()
+    -- draw
+    local sprites
+    for _, group in pairs(self.groups) do
+        sprites = group:sprites()
+        for _, sprite in pairs(sprites) do
+            sprite:draw()
+        end
+    end
 end
 
 return Level
