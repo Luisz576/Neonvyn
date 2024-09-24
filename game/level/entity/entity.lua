@@ -94,7 +94,7 @@ end
 -- update
 function Entity:update(dt)
     -- update z
-    self.z = self.rect:centerY()
+    self.z = self.rect:bottom()
     -- moviment logic
     self:_move(dt)
 end

@@ -5,7 +5,7 @@ local AnimationController = require "libraries.llove.animation".AnimationControl
 local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 local Entity = require "game.level.entity.entity"
 local EntityType = require "game.level.entity.entity_type"
-local Hurtbox = require "game.components.hutbox"
+-- local Hurtbox = require "game.components.hutbox"
 
 local Player = setmetatable({}, Entity)
 Player.__index = Player
@@ -16,7 +16,7 @@ function Player:new(x, y, groups, collisionGroups, damageHurtboxGroup)
     local instance = Entity:new(EntityType.HUMAN, x, y, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1)
 
     -- components
-    instance.hurtbox = Hurtbox:new(instance, x, y, 17 * scale, 25 * scale, damageHurtboxGroup, instance, "onHurtboxJoin", "onHurtboxQuit")
+    -- instance.hurtbox = Hurtbox:new(instance, x, y, 17 * scale, 25 * scale, damageHurtboxGroup, instance, "onHurtboxJoin", "onHurtboxQuit")
 
     -- animationa
     instance.sprite = {}
@@ -24,6 +24,7 @@ function Player:new(x, y, groups, collisionGroups, damageHurtboxGroup)
     instance.sprite.grid = AnimationGrid:new(17, 25, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
     instance.sprite.scale = scale
     instance.sprite.animationController = AnimationController:new({
+        -- idle
         idle_down = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
             frameYInterval = 1
@@ -40,6 +41,7 @@ function Player:new(x, y, groups, collisionGroups, damageHurtboxGroup)
             frameXInterval = '1-6',
             frameYInterval = 2
         }), 8, 2):flipX(),
+        -- walking
         walking_down = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
             frameYInterval = 4
@@ -100,25 +102,25 @@ function Player:_animate(dt)
 end
 
 -- onHurtbox join
-function Player:onHurtboxJoin(sprite)
-    print("join")
-end
+-- function Player:onHurtboxJoin(sprite)
+--     print("join")
+-- end
 
 -- onHurtbox quit
-function Player:onHurtboxQuit(sprite)
-    print("quit")
-end
+-- function Player:onHurtboxQuit(sprite)
+--     print("quit")
+-- end
 
 -- update
 function Player:update(dt)
-    -- hurtbox
-    self.hurtbox:update()
     -- input
     self:_input()
     -- animate
     self:_animate(dt)
     -- call super
     Entity.update(self, dt)
+    -- hurtbox
+    -- self.hurtbox:update()
 end
 
 -- draw

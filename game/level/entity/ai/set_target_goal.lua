@@ -13,7 +13,7 @@ function LookAtTargetGoal:new(entity, possibleTargets, visionGroups, viewDistanc
     instance.visionGroups = visionGroups or {}
     instance.viewDistance = viewDistance or 200
 
-    return setmetatable(instance, LookAtTargetGoal)
+    return setmetatable(instance, self)
 end
 
 -- is possible target

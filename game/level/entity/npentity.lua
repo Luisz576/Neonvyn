@@ -13,8 +13,10 @@ function NPEntity:new(entityType, x, y, width, height, groups, collisionGroups, 
 end
 
 -- add goal
-function NPEntity:addGoal(goal)
+function NPEntity:addGoal(goal, priority)
+    goal.priority = priority or (#self.goals + 1)
     table.insert(self.goals, goal)
+    table.sort(self.goals, function (a, b) return a.priority < b.priority end)
 end
 
 -- get goal

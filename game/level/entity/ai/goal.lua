@@ -6,7 +6,7 @@ function Goal:new(entity)
     local instance = {
         entity = entity
     }
-    return setmetatable(instance, Goal)
+    return setmetatable(instance, self)
 end
 
 -- update
