@@ -10,14 +10,15 @@ local Player = setmetatable({}, Entity)
 Player.__index = Player
 
 -- constructor
-function Player:new(x, y, groups)
-    local instance = Entity:new(EntityType.HUMAN, x, y, 17, 25, groups, 0.5, 0.5)
+function Player:new(x, y, groups, collisionGroups)
+    local scale = 2
+    local instance = Entity:new(EntityType.HUMAN, x, y, 17 * scale, 25 * scale, groups, collisionGroups, 1.2, 1.2)
 
     -- animationa
     instance.sprite = {}
     instance.sprite.spriteSheet = love.graphics.newImage("assets/entities/player.png")
     instance.sprite.grid = AnimationGrid:new(17, 25, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
-    instance.sprite.scale = 2
+    instance.sprite.scale = scale
     instance.sprite.animationController = AnimationController:new({
         idle_down = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
@@ -33,24 +34,24 @@ function Player:new(x, y, groups)
         }), 8, 2),
         idle_left = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
-            frameYInterval = 4
-        }), 8, 2),
+            frameYInterval = 2
+        }), 8, 2):flipX(),
         walking_down = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
-            frameYInterval = 5
+            frameYInterval = 4
         }), 8, 2),
         walking_right = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
-            frameYInterval = 6
+            frameYInterval = 5
         }), 8, 2),
         walking_up = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
-            frameYInterval = 7
+            frameYInterval = 6
         }), 8, 2),
         walking_left = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
-            frameYInterval = 8
-        }), 8, 2),
+            frameYInterval = 5
+        }), 8, 2):flipX(),
     }, "idle_down", true)
     instance.sprite.direction = Direction.down
 

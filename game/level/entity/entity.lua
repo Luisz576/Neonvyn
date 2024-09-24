@@ -2,14 +2,16 @@ local Sprite = require "libraries.llove.component".Sprite
 local Groups = require "game.groups"
 local Rect = require "libraries.llove.component".Rect
 local Vector2D = require "libraries.llove.math".Vector2D
+local Axis = require "libraries.llove.util".Axis
 
 local Entity = setmetatable({}, Sprite)
 Entity.__index = Entity
 
 -- constructor
-function Entity:new(entityType, x, y, width, height, groups, hitboxRelationX, hitboxRelationY)
+function Entity:new(entityType, x, y, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY)
     local instance = Sprite:new(groups)
     
+    instance.collisionGroups = collisionGroups or {}
     instance.entityType = entityType
     instance.rect = Rect:new(x, y, width, height)
     hitboxRelationX = hitboxRelationX or 1
@@ -50,13 +52,43 @@ function Entity:_move(dt)
     end
     -- move in x
     self.rect.x = self.rect.x + self.velocity.x * self.speed * dt
+    self.hitbox:setCenterX(self.rect:centerX())
+    -- collision logic
+    self:_collision(Axis.horizontal)
     -- move in y
     self.rect.y = self.rect.y + self.velocity.y * self.speed * dt
+    self.hitbox:setCenterY(self.rect:centerY())
+    -- collision logic
+    self:_collision(Axis.vertical)
 end
 
 -- collision
-function Entity:_collision()
-    -- ! TODO: collision logic
+function Entity:_collision(axis)
+    local sprites
+    for _, group in pairs(self.collisionGroups) do
+        sprites = group:sprites()
+        for _, sprite in pairs(sprites) do
+            if sprite ~= self then
+                if self.hitbox:collideRect(sprite.hitbox) then
+                    if axis == Axis.horizontal then
+                        if self.velocity.x > 0 then
+                            self.hitbox:setRight(sprite.hitbox:left())
+                        elseif self.velocity.x < 0 then
+                            self.hitbox:setLeft(sprite.hitbox:right())
+                        end
+                        self.rect:setCenterX(self.hitbox:centerX())
+                    else
+                        if self.velocity.y > 0 then
+                            self.hitbox:setBottom(sprite.hitbox:top())
+                        elseif self.velocity.y < 0 then
+                            self.hitbox:setTop(sprite.hitbox:bottom())
+                        end
+                        self.rect:setCenterY(self.hitbox:centerY())
+                    end
+                end
+            end
+        end
+    end
 end
 
 -- update
@@ -64,9 +96,7 @@ function Entity:update(dt)
     -- update z
     self.z = self.rect:centerY()
     -- moviment logic
-    Entity._move(self, dt)
-    -- collision logic
-    Entity._collision(self)
+    self:_move(dt)
 end
 
 return Entity

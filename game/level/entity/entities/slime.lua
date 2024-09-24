@@ -18,8 +18,8 @@ local SlimeData = {
         speed = 100,
         width = 14,
         height = 10,
-        hitboxRelationX = 0.5,
-        hitboxRelationY = 0.5,
+        hitboxRelationX = 1.2,
+        hitboxRelationY = 1.2,
         spriteSheetPath = "assets/entities/slime.png",
         spriteFrameWidth = 20,
         spriteFrameHeight = 18,
@@ -27,21 +27,24 @@ local SlimeData = {
         -- TODO: maybe change the view to be a rect and see the collision
         goalsConfiguration = {
             viewDistance = 250
-        }
+        },
+        -- sprite fix when render
+        spriteFixX = -6,
+        spriteFixY = -12,
     }
 }
 SlimeData.__index = SlimeData
 
 -- constructor
-function Slime:new(x, y, groups, slimeData)
-    local instance = NPEntity:new(EntityType.SLIME, x, y, slimeData.width, slimeData.height, groups, slimeData.hitboxRelationX, slimeData.hitboxRelationY)
+function Slime:new(x, y, groups, collisionGroups, slimeData)
+    local instance = NPEntity:new(EntityType.SLIME, x, y, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY)
 
     -- attributes
     instance.speed = slimeData.speed
 
     -- groups
     instance.entityGroup = instance.getGroup(instance, Groups.ENTITY)
-    
+
     -- animationa
     instance.sprite = {}
     instance.sprite.spriteSheet = love.graphics.newImage(slimeData.spriteSheetPath)
@@ -82,6 +85,10 @@ function Slime:new(x, y, groups, slimeData)
         }), 8, 2):flipX(),
     }, "idle_down", true)
     instance.sprite.direction = Direction.down
+
+    -- sprite fix
+    instance.sprite.spriteFixX = slimeData.spriteFixX or 0
+    instance.sprite.spriteFixY = slimeData.spriteFixY or 0
 
     -- goals
     instance.goalsConfiguration = slimeData.goalsConfiguration or {}
@@ -136,7 +143,8 @@ end
 
 -- draw
 function Slime:draw()
-    self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
+    local x, y = self.rect.x + self.sprite.spriteFixX, self.rect.y + self.sprite.spriteFixY
+    self.sprite.animationController:draw(self.sprite.spriteSheet, x, y, nil, self.sprite.scale)
 end
 
 return {
