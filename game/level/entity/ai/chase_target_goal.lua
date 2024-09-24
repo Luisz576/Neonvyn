@@ -9,7 +9,7 @@ function ChaseTargetGoal:new(entity, distanceToChangeDirection, distanceToStopCh
     local instance = Goal:new(entity)
 
     instance.distanceToChangeDirection = distanceToChangeDirection or 10
-    instance.distanceToStopChasing = distanceToStopChasing or 8
+    instance.distanceToStopChasing = distanceToStopChasing or 20
 
     return setmetatable(instance, self)
 end

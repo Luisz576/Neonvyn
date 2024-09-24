@@ -4,11 +4,11 @@ local AnimationController = require "libraries.llove.animation".AnimationControl
 local Direction = require "libraries.llove.util".Direction
 local NPEntity = require "game.level.entity.npentity"
 local EntityType = require "game.level.entity.entity_type"
+local Groups = require "game.groups"
 -- goals
 local ChaseTargetGoal = require "game.level.entity.ai.chase_target_goal"
 local SetTargetGoal = require "game.level.entity.ai.set_target_goal"
 local Player = require "game.level.entity.entities.player"
-local Groups = require "game.groups"
 
 local Slime = setmetatable({}, NPEntity)
 Slime.__index = Slime
@@ -19,7 +19,15 @@ local SlimeData = {
         width = 14,
         height = 10,
         hitboxRelationX = 0.5,
-        hitboxRelationY = 0.5
+        hitboxRelationY = 0.5,
+        spriteSheetPath = "assets/entities/slime.png",
+        spriteFrameWidth = 20,
+        spriteFrameHeight = 18,
+        spriteScale = 2,
+        -- TODO: maybe change the view to be a rect and see the collision
+        goalsConfiguration = {
+            viewDistance = 250
+        }
     }
 }
 SlimeData.__index = SlimeData
@@ -30,12 +38,15 @@ function Slime:new(x, y, groups, slimeData)
 
     -- attributes
     instance.speed = slimeData.speed
+
+    -- groups
+    instance.entityGroup = instance.getGroup(instance, Groups.ENTITY)
     
     -- animationa
     instance.sprite = {}
-    instance.sprite.spriteSheet = love.graphics.newImage("assets/entities/slime.png")
-    instance.sprite.grid = AnimationGrid:new(20, 18, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
-    instance.sprite.scale = 2
+    instance.sprite.spriteSheet = love.graphics.newImage(slimeData.spriteSheetPath)
+    instance.sprite.grid = AnimationGrid:new(slimeData.spriteFrameWidth, slimeData.spriteFrameHeight, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
+    instance.sprite.scale = slimeData.spriteScale
     instance.sprite.animationController = AnimationController:new({
         idle_down = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-4',
@@ -72,8 +83,8 @@ function Slime:new(x, y, groups, slimeData)
     }, "idle_down", true)
     instance.sprite.direction = Direction.down
 
-    instance.entityGroup = instance.getGroup(instance, Groups.ENTITY)
-
+    -- goals
+    instance.goalsConfiguration = slimeData.goalsConfiguration or {}
     Slime._registerGoals(instance)
 
     return setmetatable(instance, self)
@@ -81,8 +92,9 @@ end
 
 -- register goals
 function Slime:_registerGoals()
+    -- set_target_goal
+    self:addGoal(SetTargetGoal:new(self, {Player}, {self.entityGroup}, self.goalsConfiguration.viewDistance))
     -- chase_target_goal
-    self:addGoal(SetTargetGoal:new(self, {Player}, {self.entityGroup}))
     self:addGoal(ChaseTargetGoal:new(self))
 end
 
