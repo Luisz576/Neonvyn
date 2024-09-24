@@ -1,9 +1,9 @@
 local love = require "love"
-local anim8 = require "libraries.anim8"
 local Direction = require "libraries.llove.util".Direction
 local Entity = require "game.level.entity.entity"
 local Animation = require "libraries.llove.animation".Animation
 local AnimationController = require "libraries.llove.animation".AnimationController
+local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 
 local Player = {}
 Player.__index = Player
@@ -15,17 +15,41 @@ function Player:new(x, y, groups)
     -- animationa
     instance.sprite = {}
     instance.sprite.spriteSheet = love.graphics.newImage("assets/entities/player.png")
-    instance.sprite.grid = anim8.newGrid(17, 25, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
+    instance.sprite.grid = AnimationGrid:new(17, 25, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
     instance.sprite.scale = 2
     instance.sprite.animationController = AnimationController:new({
-        idle_down = Animation:new(instance.sprite.grid('1-6', 1)),
-        idle_right = Animation:new(instance.sprite.grid('1-6', 2)),
-        idle_up = Animation:new(instance.sprite.grid('1-6', 3)),
-        idle_left = Animation:new(instance.sprite.grid('1-6', 4)),
-        walking_down = Animation:new(instance.sprite.grid('1-6', 5)),
-        walking_right = Animation:new(instance.sprite.grid('1-6', 6)),
-        walking_up = Animation:new(instance.sprite.grid('1-6', 7)),
-        walking_left = Animation:new(instance.sprite.grid('1-6', 8)),
+        idle_down = Animation:new(instance.sprite.grid:frames({
+            frameXInterval = '1-6',
+            frameYInterval = 1
+        }), 8, 2),
+        idle_right = Animation:new(instance.sprite.grid:frames({
+            frameXInterval = '1-6',
+            frameYInterval = 2
+        }), 8, 2),
+        idle_up = Animation:new(instance.sprite.grid:frames({
+            frameXInterval = '1-6',
+            frameYInterval = 3
+        }), 8, 2),
+        idle_left = Animation:new(instance.sprite.grid:frames({
+            frameXInterval = '1-6',
+            frameYInterval = 4
+        }), 8, 2),
+        walking_down = Animation:new(instance.sprite.grid:frames({
+            frameXInterval = '1-6',
+            frameYInterval = 5
+        }), 8, 2),
+        walking_right = Animation:new(instance.sprite.grid:frames({
+            frameXInterval = '1-6',
+            frameYInterval = 6
+        }), 8, 2),
+        walking_up = Animation:new(instance.sprite.grid:frames({
+            frameXInterval = '1-6',
+            frameYInterval = 7
+        }), 8, 2),
+        walking_left = Animation:new(instance.sprite.grid:frames({
+            frameXInterval = '1-6',
+            frameYInterval = 8
+        }), 8, 2),
     }, "idle_down", true)
     instance.sprite.animationDirection = Direction.down
 
