@@ -56,6 +56,7 @@ end
 -- collision
 function Entity:_collision()
     if self.entityGroup ~= nil then
+        -- ! TODO: will really collide with entity groups?
         for _, sprite in ipairs(self.entityGroup:sprites()) do
             if sprite ~= self then
                 -- ! TODO: entity colision

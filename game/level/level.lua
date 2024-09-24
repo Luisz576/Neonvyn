@@ -1,5 +1,5 @@
 local sti = require 'libraries.sti'
-local Player = require "game.level.entity.player"
+local Player = require "game.level.entity.entities.player"
 local Group = require "libraries.llove.component".Group
 local Groups = require "game.level.groups"
 
