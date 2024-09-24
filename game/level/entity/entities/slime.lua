@@ -5,7 +5,6 @@ local Direction = require "libraries.llove.util".Direction
 local NPEntity = require "game.level.entity.npentity"
 local EntityType = require "game.level.entity.entity_type"
 -- goals
-local LookAtTargetGoal = require "game.level.entity.ai.look_at_target_goal"
 local ChaseTargetGoal = require "game.level.entity.ai.chase_target_goal"
 local SetTargetGoal = require "game.level.entity.ai.set_target_goal"
 local Player = require "game.level.entity.entities.player"
@@ -83,7 +82,6 @@ end
 -- register goals
 function Slime:_registerGoals()
     -- chase_target_goal
-    --self:addGoal(LookAtTargetGoal:new(self, {Player}, {self.entityGroup}))
     self:addGoal(SetTargetGoal:new(self, {Player}, {self.entityGroup}))
     self:addGoal(ChaseTargetGoal:new(self))
 end

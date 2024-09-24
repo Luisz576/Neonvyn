@@ -17,7 +17,7 @@ function Level:new()
 
     -- TODO: load level
 
-    Slime.Slime:new(100, 100, {instance.groups.spritesRender, instance.groups.entitiesGroup}, Slime.SlimeData.normal)
+    Slime.Slime:new(400, 200, {instance.groups.spritesRender, instance.groups.entitiesGroup}, Slime.SlimeData.normal)
 
     return setmetatable(instance, self)
 end
