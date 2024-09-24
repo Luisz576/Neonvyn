@@ -7,9 +7,10 @@ local Entity = setmetatable({}, Sprite)
 Entity.__index = Entity
 
 -- constructor
-function Entity:new(x, y, width, height, groups, hitboxRelationX, hitboxRelationY)
+function Entity:new(entityType, x, y, width, height, groups, hitboxRelationX, hitboxRelationY)
     local instance = Sprite:new(groups)
-
+    
+    instance.entityType = entityType
     instance.rect = Rect:new(x, y, width, height)
     hitboxRelationX = hitboxRelationX or 1
     hitboxRelationY = hitboxRelationY or 1

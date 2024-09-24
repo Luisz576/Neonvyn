@@ -3,8 +3,13 @@ local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 local AnimationController = require "libraries.llove.animation".AnimationController
 local Direction = require "libraries.llove.util".Direction
 local NPEntity = require "game.level.entity.npentity"
+local EntityType = require "game.level.entity.entity_type"
 -- goals
+local LookAtTargetGoal = require "game.level.entity.ai.look_at_target_goal"
 local ChaseTargetGoal = require "game.level.entity.ai.chase_target_goal"
+local SetTargetGoal = require "game.level.entity.ai.set_target_goal"
+local Player = require "game.level.entity.entities.player"
+local Groups = require "game.groups"
 
 local Slime = setmetatable({}, NPEntity)
 Slime.__index = Slime
@@ -12,61 +17,63 @@ Slime.__index = Slime
 local SlimeData = {
     normal = {
         speed = 100,
-        width = 20,
-        height = 20,
-        hitboxRelationX = 0.8,
-        hitboxRelationY = 0.8
+        width = 14,
+        height = 10,
+        hitboxRelationX = 0.5,
+        hitboxRelationY = 0.5
     }
 }
 SlimeData.__index = SlimeData
 
 -- constructor
 function Slime:new(x, y, groups, slimeData)
-    local instance = NPEntity:new(x, y, slimeData.width, slimeData.height, groups, slimeData.hitboxRelationX, slimeData.hitboxRelationY)
+    local instance = NPEntity:new(EntityType.SLIME, x, y, slimeData.width, slimeData.height, groups, slimeData.hitboxRelationX, slimeData.hitboxRelationY)
 
     -- attributes
     instance.speed = slimeData.speed
     
     -- animationa
     instance.sprite = {}
-    instance.sprite.spriteSheet = love.graphics.newImage("assets/entities/player.png")
-    instance.sprite.grid = AnimationGrid:new(17, 25, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
+    instance.sprite.spriteSheet = love.graphics.newImage("assets/entities/slime.png")
+    instance.sprite.grid = AnimationGrid:new(20, 18, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
     instance.sprite.scale = 2
     instance.sprite.animationController = AnimationController:new({
         idle_down = Animation:new(instance.sprite.grid:frames({
-            frameXInterval = '1-6',
+            frameXInterval = '1-4',
             frameYInterval = 1
-        }), 8, 2),
+        }), 5, 2),
         idle_right = Animation:new(instance.sprite.grid:frames({
-            frameXInterval = '1-6',
+            frameXInterval = '1-4',
             frameYInterval = 2
-        }), 8, 2),
+        }), 5, 2),
         idle_up = Animation:new(instance.sprite.grid:frames({
-            frameXInterval = '1-6',
+            frameXInterval = '1-4',
             frameYInterval = 3
-        }), 8, 2),
+        }), 5, 2),
         idle_left = Animation:new(instance.sprite.grid:frames({
+            frameXInterval = '1-4',
+            frameYInterval = 2
+        }), 8, 2):flipX(),
+        walking_down = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
             frameYInterval = 4
         }), 8, 2),
-        walking_down = Animation:new(instance.sprite.grid:frames({
+        walking_right = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
             frameYInterval = 5
         }), 8, 2),
-        walking_right = Animation:new(instance.sprite.grid:frames({
+        walking_up = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
             frameYInterval = 6
         }), 8, 2),
-        walking_up = Animation:new(instance.sprite.grid:frames({
-            frameXInterval = '1-6',
-            frameYInterval = 7
-        }), 8, 2),
         walking_left = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
-            frameYInterval = 8
-        }), 8, 2),
+            frameYInterval = 5
+        }), 8, 2):flipX(),
     }, "idle_down", true)
-    instance.sprite.animationDirection = Direction.down
+    instance.sprite.direction = Direction.down
+
+    instance.entityGroup = instance.getGroup(instance, Groups.ENTITY)
 
     Slime._registerGoals(instance)
 
@@ -76,13 +83,15 @@ end
 -- register goals
 function Slime:_registerGoals()
     -- chase_target_goal
+    --self:addGoal(LookAtTargetGoal:new(self, {Player}, {self.entityGroup}))
+    self:addGoal(SetTargetGoal:new(self, {Player}, {self.entityGroup}))
     self:addGoal(ChaseTargetGoal:new(self))
 end
 
 -- animate
 function Slime:_animate(dt)
     local animationName = "idle"
-    local animationDirection = self.sprite.animationDirection
+    local animationDirection = self.sprite.direction
 
     -- is moving
     if self:isMoving() then
@@ -100,7 +109,7 @@ function Slime:_animate(dt)
         animationDirection = Direction.up
     end
     -- save direction
-    self.sprite.animationDirection = animationDirection
+    self.sprite.direction = animationDirection
     -- set animation
     self.sprite.animationController:change(animationName .. "_" .. animationDirection)
     -- update animation

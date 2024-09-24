@@ -1,4 +1,5 @@
 local Goal = require "game.level.entity.ai.goal"
+local pointsDis = require "libraries.llove.math".pointsDis
 
 local ChaseTargetGoal = setmetatable({}, Goal)
 ChaseTargetGoal.__index = ChaseTargetGoal
@@ -16,12 +17,13 @@ end
 -- update
 function ChaseTargetGoal:update(dt)
     if self.entity.target ~= nil then
-        local entityX, entityY = self.entity.rect.x, self.entity.rect.y
-        local targetX, targetY = self.entity.target.rect.x, self.entity.target.rect.y
+        local entityX, entityY = self.entity.rect:centerX(), self.entity.rect:centerY()
+        local targetX, targetY = self.entity.target.rect:centerX(), self.entity.target.rect:centerY()
         local disX, disY = math.abs(entityX - targetX), math.abs(entityY - targetY)
         local distanceToChangeDirection, distanceToStopChasing = self.distanceToChangeDirection, self.distanceToStopChasing
 
-        if disX < distanceToStopChasing and disY < distanceToStopChasing then
+        -- is close
+        if pointsDis(self.entity.rect:center(), self.entity.target.rect:center()) < distanceToStopChasing then
             self.entity.velocity.x = 0
             self.entity.velocity.y = 0
             return
@@ -68,6 +70,9 @@ function ChaseTargetGoal:update(dt)
         else
             self.entity.velocity.y = 0
         end
+    else
+        self.entity.velocity.x = 0
+        self.entity.velocity.y = 0
     end
 end
 

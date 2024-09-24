@@ -1,10 +1,7 @@
 local sti = require 'libraries.sti'
+local Groups = require "game.groups"
 local Player = require "game.level.entity.entities.player"
 local Slime = require "game.level.entity.entities.slime"
-local Groups = require "game.groups"
-
-local Entity = require "game.level.entity.entity"
-local NPEntity = require "game.level.entity.npentity"
 
 local Level = {}
 Level.__index = Level
@@ -20,7 +17,7 @@ function Level:new()
 
     -- TODO: load level
 
-    Slime.Slime:new(100, 100, {instance.groups.spritesRender, instance.groups.entitiesGroup}, Slime.SlimeData.normal).target = instance.player
+    Slime.Slime:new(100, 100, {instance.groups.spritesRender, instance.groups.entitiesGroup}, Slime.SlimeData.normal)
 
     return setmetatable(instance, self)
 end

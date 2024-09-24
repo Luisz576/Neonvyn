@@ -4,13 +4,14 @@ local Animation = require "libraries.llove.animation".Animation
 local AnimationController = require "libraries.llove.animation".AnimationController
 local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 local Entity = require "game.level.entity.entity"
+local EntityType = require "game.level.entity.entity_type"
 
 local Player = setmetatable({}, Entity)
 Player.__index = Player
 
 -- constructor
 function Player:new(x, y, groups)
-    local instance = Entity:new(x, y, 17, 25, groups, 0.5, 0.5)
+    local instance = Entity:new(EntityType.HUMAN, x, y, 17, 25, groups, 0.5, 0.5)
 
     -- animationa
     instance.sprite = {}
@@ -51,7 +52,7 @@ function Player:new(x, y, groups)
             frameYInterval = 8
         }), 8, 2),
     }, "idle_down", true)
-    instance.sprite.animationDirection = Direction.down
+    instance.sprite.direction = Direction.down
 
     return setmetatable(instance, self)
 end
@@ -68,7 +69,7 @@ end
 -- animate
 function Player:_animate(dt)
     local animationName = "idle"
-    local animationDirection = self.sprite.animationDirection
+    local animationDirection = self.sprite.direction
 
     -- is moving
     if self:isMoving() then
@@ -86,7 +87,7 @@ function Player:_animate(dt)
         animationDirection = Direction.up
     end
     -- save direction
-    self.sprite.animationDirection = animationDirection
+    self.sprite.direction = animationDirection
     -- set animation
     self.sprite.animationController:change(animationName .. "_" .. animationDirection)
     -- update animation
