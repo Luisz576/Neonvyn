@@ -16,6 +16,7 @@ local function sortByZLayer(a, b)
     return a.z < b.z
 end
 
+-- ? probably create based on canvas?
 function SpritesRenderGroup:draw()
     table.sort(self._sprites, sortByZLayer)
     for _, sprite in pairs(self._sprites) do

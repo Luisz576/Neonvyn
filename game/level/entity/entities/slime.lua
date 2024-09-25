@@ -8,7 +8,7 @@ local NPEntity = require "game.level.entity.npentity"
 local EntityType = require "game.level.entity.entity_type"
 local EntityClassification = require "game.level.entity.entity_classification"
 local Groups = require "game.groups"
-local Shader = require "game.shader"
+local Shader = require "game.shader.shader".Shader
 local DamageType = require "game.components.damage_source".DamageType
 -- goals
 local LookAtTargetGoal = require "game.level.entity.ai.look_at_target_goal"
@@ -138,7 +138,7 @@ function Slime:new(x, y, groups, collisionGroups, slimeData)
     instance.sprite.direction = Direction.down
     -- shaders
     instance.sprite.shaders = {
-        damage_flash = Shader.get("damage_flash")
+        damage_flash = Shader:get("damage_flash")
     }
 
     -- sprite fix

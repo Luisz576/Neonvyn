@@ -6,7 +6,7 @@ local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 local Entity = require "game.level.entity.entity"
 local EntityType = require "game.level.entity.entity_type"
 local EntityClassification = require "game.level.entity.entity_classification"
-local Shader = require "game.shader"
+local Shader = require "game.shader.shader".Shader
 -- local Hurtbox = require "game.components.hutbox"
 
 local Player = setmetatable({}, Entity)
@@ -24,7 +24,7 @@ function Player:new(x, y, groups, collisionGroups, damageHurtboxGroup)
     -- state
     instance.state = {}
     instance.state.receivingDamage = false
-    instance.state.receivingDamageTime = 0.1
+    instance.state.receivingDamageTime = 0.15
     instance.state.receivingDamageDelta = 0
 
     -- components
@@ -74,7 +74,7 @@ function Player:new(x, y, groups, collisionGroups, damageHurtboxGroup)
     instance.sprite.direction = Direction.down
     -- shaders
     instance.sprite.shaders = {
-        damage_flash = Shader.get("damage_flash")
+        damage_flash = Shader:get("damage_flash")
     }
 
     return setmetatable(instance, self)
@@ -158,6 +158,7 @@ end
 
 function Player:_onDie(source)
     print("DIE")
+    self:removeFromGroups()
 end
 
 -- update
