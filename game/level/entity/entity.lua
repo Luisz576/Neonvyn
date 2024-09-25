@@ -1,31 +1,42 @@
 local Sprite = require "libraries.llove.component".Sprite
-local Groups = require "game.groups"
 local Rect = require "libraries.llove.component".Rect
 local Vector2D = require "libraries.llove.math".Vector2D
 local Axis = require "libraries.llove.util".Axis
+local Groups = require "game.groups"
+local Health = require "game.components.health"
 
 local Entity = setmetatable({}, Sprite)
 Entity.__index = Entity
 
 -- constructor
-function Entity:new(entityType, x, y, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY)
+function Entity:new(entityType, entityClassification, x, y, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY, maxHealth)
     local instance = Sprite:new(groups)
-    
-    instance.collisionGroups = collisionGroups or {}
-    instance.entityType = entityType
+
     instance.rect = Rect:new(x, y, width, height)
     hitboxRelationX = hitboxRelationX or 1
     hitboxRelationY = hitboxRelationY or 1
     instance.hitbox = instance.rect:inflate(hitboxRelationX * width, hitboxRelationY * height)
 
     -- attributes
+    instance.entityType = entityType
+    instance.entityClassification = entityClassification
     instance.velocity = Vector2D:zero()
     instance.speed = 200
 
+    -- components
+    instance.health = Health:new(instance, maxHealth)
+    instance.health:addListener(instance, "_onHeal", "_onHurt")
+
     -- groups
+    instance.collisionGroups = collisionGroups or {}
     instance.entityGroup = instance:getGroup(Groups.ENTITY)
 
     return setmetatable(instance, self)
+end
+
+-- current health
+function Entity:getHealth()
+    return self.health.h
 end
 
 -- position
@@ -97,6 +108,18 @@ function Entity:update(dt)
     self.z = self.rect:bottom()
     -- moviment logic
     self:_move(dt)
+end
+
+-- on die
+function Entity:_onDie(source) end
+
+-- on get healed
+function Entity:_onHeal(source) end
+-- on get hurted
+function Entity:_onHurt(source)
+    if self.health.h <= 0 then
+        self:_onDie(source)
+    end
 end
 
 return Entity

@@ -5,6 +5,7 @@ local AnimationController = require "libraries.llove.animation".AnimationControl
 local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 local Entity = require "game.level.entity.entity"
 local EntityType = require "game.level.entity.entity_type"
+local EntityClassification = require "game.level.entity.entity_classification"
 -- local Hurtbox = require "game.components.hutbox"
 
 local Player = setmetatable({}, Entity)
@@ -13,7 +14,7 @@ Player.__index = Player
 -- constructor
 function Player:new(x, y, groups, collisionGroups, damageHurtboxGroup)
     local scale = 2
-    local instance = Entity:new(EntityType.HUMAN, x, y, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1)
+    local instance = Entity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, x, y, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1)
 
     -- components
     -- instance.hurtbox = Hurtbox:new(instance, x, y, 17 * scale, 25 * scale, damageHurtboxGroup, instance, "onHurtboxJoin", "onHurtboxQuit")
@@ -126,6 +127,14 @@ end
 -- draw
 function Player:draw()
     self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
+end
+
+-- on get hurted
+function Player:_onHurt(source)
+    -- ! do animation of receiving damage
+    print(source.damage)
+    -- super
+    Entity._onHurt(self, source)
 end
 
 return Player

@@ -2,9 +2,11 @@ local Animation = require "libraries.llove.animation".Animation
 local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 local AnimationController = require "libraries.llove.animation".AnimationController
 local Direction = require "libraries.llove.util".Direction
-local NPEntity = require "game.level.entity.npentity"
+local pointsDis = require "libraries.llove.math".pointsDis
+local MonsterEntity = require "game.level.entity.monster_entity"
 local EntityType = require "game.level.entity.entity_type"
 local Groups = require "game.groups"
+local DamageType = require "game.components.damage_source".DamageType
 -- goals
 local LookAtTargetGoal = require "game.level.entity.ai.look_at_target_goal"
 local ChaseTargetGoal = require "game.level.entity.ai.chase_target_goal"
@@ -12,17 +14,21 @@ local SetTargetGoal = require "game.level.entity.ai.set_target_goal"
 local TriggerTargetDistanceGoal = require "game.level.entity.ai.trigger_target_distance_goal"
 local Player = require "game.level.entity.entities.player"
 
-local Slime = setmetatable({}, NPEntity)
+local Slime = setmetatable({}, MonsterEntity)
 Slime.__index = Slime
 
 local SlimeData = {
     NORMAL = {
-        -- attributes
-        speed = 80,
         width = 14,
         height = 10,
         hitboxRelationX = 1,
         hitboxRelationY = 1,
+        -- attributes
+        speed = 80,
+        -- damage
+        damage = 2,
+        criticalMultiplier = 1.5,
+        criticalBasePercent = 20,
         -- sprite and animation configuration
         spriteSheetPath = "assets/entities/slime.png",
         spriteFrameWidth = 20,
@@ -44,7 +50,7 @@ SlimeData.__index = SlimeData
 
 -- constructor
 function Slime:new(x, y, groups, collisionGroups, slimeData)
-    local instance = NPEntity:new(EntityType.SLIME, x, y, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY)
+    local instance = MonsterEntity:new(EntityType.SLIME, x, y, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY)
 
     -- slime attributes
     instance.slime = {}
@@ -52,9 +58,15 @@ function Slime:new(x, y, groups, collisionGroups, slimeData)
     instance.slime.deltaMove = 0.01
 
     -- attributes
-    instance.attacking = false
-    instance.attackingTarget = nil
     instance.speed = slimeData.speed
+    instance.damage = 2
+    instance.criticalMultiplier = 1.5
+    instance.criticalBasePercent = 10
+
+    -- attacking
+    instance.attacking = false
+    instance.attackingAlreadyTryGiveDamage = false
+    instance.attackingTarget = nil
 
     -- groups
     instance.entityGroup = instance.getGroup(instance, Groups.ENTITY)
@@ -177,19 +189,31 @@ function Slime:_animate(dt)
     self.sprite.animationController:update(dt)
 end
 
+-- stop attacking
+function Slime:_stopAttacking()
+    -- reset trigger
+    self.goalsConfiguration.attackTriggerGoal:resetTrigger()
+    -- super
+    MonsterEntity._stopAttacking(self)
+end
+
 -- attacking logic
 function Slime:_attacking()
     self.velocity:set(0, 0)
 
     if self.sprite.animationController:animation():isFrame(3) then -- give damage
-        -- if self.attackingTarget.rect:center() -- ?Look the distance to give damage
-        -- TODO: give damage
+        if not self.attackingAlreadyTryGiveDamage then
+            local targetPos = self.attackingTarget.rect:center()
+            if pointsDis(self.rect:center(), targetPos) <= self.goalsConfiguration.attackRange then
+                self.attackingAlreadyTryGiveDamage = true
+                if self.attackingTarget.health ~= nil then
+                    -- really give the damahe
+                    self.attackingTarget.health:hurt(self:_calculateDamageTo(self.attackingTarget), DamageType.BY_ENTITY, self)
+                end
+            end
+        end
     elseif self.sprite.animationController:animation():isLastFrame() then -- stop animation
-        -- stop attacking
-        self.slime.deltaMove = self.slime.delayToMove / 2
-        self.attacking = false
-        -- reset trigger
-        self.goalsConfiguration.attackTriggerGoal:resetTrigger()
+        self:_stopAttacking()
     end
 end
 
@@ -227,13 +251,7 @@ function Slime:update(dt)
     end
 
     -- super
-    NPEntity.update(self, dt)
-end
-
--- attack handler
-function Slime:_attackHandler(target)
-    self.attackingTarget = target
-    self.attacking = true
+    MonsterEntity.update(self, dt)
 end
 
 -- draw
