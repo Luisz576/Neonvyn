@@ -6,15 +6,26 @@ local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 local Entity = require "game.level.entity.entity"
 local EntityType = require "game.level.entity.entity_type"
 local EntityClassification = require "game.level.entity.entity_classification"
+local Shader = require "game.shader"
 -- local Hurtbox = require "game.components.hutbox"
 
 local Player = setmetatable({}, Entity)
 Player.__index = Player
 
+local PlayerConfiguration = {
+    maxBaseHealth = 5
+}
+
 -- constructor
 function Player:new(x, y, groups, collisionGroups, damageHurtboxGroup)
     local scale = 2
-    local instance = Entity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, x, y, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1)
+    local instance = Entity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, x, y, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1, PlayerConfiguration.maxBaseHealth)
+
+    -- state
+    instance.state = {}
+    instance.state.receivingDamage = false
+    instance.state.receivingDamageTime = 0.1
+    instance.state.receivingDamageDelta = 0
 
     -- components
     -- instance.hurtbox = Hurtbox:new(instance, x, y, 17 * scale, 25 * scale, damageHurtboxGroup, instance, "onHurtboxJoin", "onHurtboxQuit")
@@ -61,6 +72,10 @@ function Player:new(x, y, groups, collisionGroups, damageHurtboxGroup)
         }), 8, 2):flipX(),
     }, "idle_down", true)
     instance.sprite.direction = Direction.down
+    -- shaders
+    instance.sprite.shaders = {
+        damage_flash = Shader.get("damage_flash")
+    }
 
     return setmetatable(instance, self)
 end
@@ -102,6 +117,22 @@ function Player:_animate(dt)
     self.sprite.animationController:update(dt)
 end
 
+-- state manager
+function Player:_state(dt)
+    self.canMove = true
+    -- receiving damage
+    if self.state.receivingDamage then
+        self.canMove = false
+        self.state.receivingDamageDelta = self.state.receivingDamageDelta - dt
+        -- stop receiving damage
+        if self.state.receivingDamageDelta <= 0 then
+            self.state.receivingDamageDelta = 0
+            self.state.receivingDamage = false
+            self.canMove = true
+        end
+    end
+end
+
 -- onHurtbox join
 -- function Player:onHurtboxJoin(sprite)
 --     print("join")
@@ -112,10 +143,29 @@ end
 --     print("quit")
 -- end
 
+-- on get hurted
+function Player:_onHurt(source)
+    -- verification if can receive damage
+    if not self.state.receivingDamage then
+        -- set receiving damage state
+        self.state.receivingDamage = true
+        self.state.receivingDamageDelta = self.state.receivingDamageTime
+        print(tostring(self.health.h) .. "/" .. tostring(self.health.mh))
+        -- super
+        Entity._onHurt(self, source)
+    end
+end
+
+function Player:_onDie(source)
+    print("DIE")
+end
+
 -- update
 function Player:update(dt)
     -- input
     self:_input()
+    -- state manager
+    self:_state(dt)
     -- animate
     self:_animate(dt)
     -- call super
@@ -126,15 +176,21 @@ end
 
 -- draw
 function Player:draw()
+    local needsToClearShader = false
+    -- damage shader
+    if self.state.receivingDamage then
+        needsToClearShader = true
+        love.graphics.setShader(self.sprite.shaders.damage_flash)
+        local percentOfReceivingDamage = (self.state.receivingDamageDelta / self.state.receivingDamageTime)
+        -- intensity
+        self.sprite.shaders.damage_flash:send("flash_intensity", percentOfReceivingDamage)
+    end
+    -- draw player sprite
     self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
-end
-
--- on get hurted
-function Player:_onHurt(source)
-    -- ! do animation of receiving damage
-    print(source.damage)
-    -- super
-    Entity._onHurt(self, source)
+    -- clear shader
+    if needsToClearShader then
+        love.graphics.setShader()
+    end
 end
 
 return Player

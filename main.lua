@@ -1,5 +1,6 @@
 -- Libraries
 _G.love = require "love"
+local Shader = require "game.shader"
 local Level = require "game.level.level"
 local Math = require "libraries.llove.math"
 
@@ -7,6 +8,9 @@ local Math = require "libraries.llove.math"
 function love.load()
     -- prevent blurring when scale pixel
     love.graphics.setDefaultFilter("nearest", "nearest")
+
+    -- load shaders
+    Shader.load()
 
     -- create the level
     _G.level = Level:new()

@@ -8,6 +8,7 @@ local NPEntity = require "game.level.entity.npentity"
 local EntityType = require "game.level.entity.entity_type"
 local EntityClassification = require "game.level.entity.entity_classification"
 local Groups = require "game.groups"
+local Shader = require "game.shader"
 local DamageType = require "game.components.damage_source".DamageType
 -- goals
 local LookAtTargetGoal = require "game.level.entity.ai.look_at_target_goal"
@@ -28,6 +29,7 @@ local SlimeData = {
         entityClassification = EntityClassification.AGGRESSIVE,
         -- attributes
         speed = 80,
+        maxHealth = 10,
         -- damage
         damage = 2,
         criticalMultiplier = 1.5,
@@ -43,8 +45,8 @@ local SlimeData = {
         -- goals configuration
         goalsConfiguration = {
             viewDistance = 250,
-            attackRange = 55,
-            distanceToStopChasing = 15
+            attackRange = 50,
+            distanceToStopChasing = 12
         },
         -- slime configuration
         delayToMove = 1.6
@@ -54,7 +56,7 @@ SlimeData.__index = SlimeData
 
 -- constructor
 function Slime:new(x, y, groups, collisionGroups, slimeData)
-    local instance = NPEntity:new(EntityType.SLIME, slimeData.entityClassification, x, y, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY)
+    local instance = NPEntity:new(EntityType.SLIME, slimeData.entityClassification, x, y, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY, slimeData.maxHealth)
 
     -- slime attributes
     instance.slime = {}
@@ -134,6 +136,10 @@ function Slime:new(x, y, groups, collisionGroups, slimeData)
         }), 8, 2):flipX(),
     }, "idle_down", true)
     instance.sprite.direction = Direction.down
+    -- shaders
+    instance.sprite.shaders = {
+        damage_flash = Shader.get("damage_flash")
+    }
 
     -- sprite fix
     instance.sprite.spriteFixX = slimeData.spriteFixX or 0
@@ -260,13 +266,13 @@ function Slime:update(dt)
     -- update animation
     self:_animate(dt)
 
-    -- update goals
-    self:updateGoals(dt)
-
     if self.attacking then
         -- attacking
         self:_attacking()
     else
+        -- update goals
+        self:updateGoals(dt)
+        -- fix attack goal
         self.goalsConfiguration.attackTriggerGoal:reset()
         -- slime behavior
         self:_slimeBehaviour(dt)

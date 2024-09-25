@@ -18,7 +18,7 @@ function Level:new()
     instance.player = Player:new(100, 100, {instance.groups.spritesRender, instance.groups.entitiesGroup}, {}, {instance.groups.entitiesGroup})
 
     -- spawn random slimes
-    for i = 1, 3, 1 do
+    for i = 1, 100, 1 do
         Slime.Slime:new(math.random(0, 600), math.random(0, 600), {instance.groups.spritesRender, instance.groups.entitiesGroup}, {}, Slime.SlimeData.NORMAL)
     end
 

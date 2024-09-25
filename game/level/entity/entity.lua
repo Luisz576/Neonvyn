@@ -22,6 +22,7 @@ function Entity:new(entityType, entityClassification, x, y, width, height, group
     instance.entityClassification = entityClassification
     instance.velocity = Vector2D:zero()
     instance.speed = 200
+    instance.canMove = true
 
     -- components
     instance.health = Health:new(instance, maxHealth)
@@ -107,7 +108,9 @@ function Entity:update(dt)
     -- update z
     self.z = self.rect:bottom()
     -- moviment logic
-    self:_move(dt)
+    if self.canMove then
+        self:_move(dt)
+    end
 end
 
 -- on die
