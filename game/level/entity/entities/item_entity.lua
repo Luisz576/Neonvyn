@@ -34,12 +34,17 @@ function ItemEntity:update(dt)
     local sprites = self.catcherGroup:sprites()
     for _, sprite in pairs(sprites) do
         if sprite.pickupItem ~= nil then
+            -- TODO: don't be attracted if sprite can't get items right now (because of full inventory, etc...)
             local spriteCenter, selfCenter = sprite.rect:center(), self.rect:center()
             local dis = pointsDis(selfCenter, spriteCenter)
             if dis < self.attractableDistance then
-                if dis < 5 then
-                    sprite:pickupItem(self.item)
-                    self:destroy()
+                if dis < 10 then
+                    local amountThatCouldntBePickedUp = sprite:pickupItem(self.item)
+                    if amountThatCouldntBePickedUp < 1 then
+                        self:destroy()
+                    else
+                        self.item.amount = amountThatCouldntBePickedUp
+                    end
                     return
                 end
                 -- TODO: fix this

@@ -4,8 +4,8 @@ local NPEntity = setmetatable({}, LivingEntity)
 NPEntity.__index = NPEntity
 
 -- constructor
-function NPEntity:new(entityType, entityClassification, level, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY)
-    local instance = LivingEntity:new(entityType, entityClassification, level, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY)
+function NPEntity:new(entityType, entityClassification, level, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY, maxHealth, receivingDamageTime)
+    local instance = LivingEntity:new(entityType, entityClassification, level, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY, maxHealth, receivingDamageTime)
 
     instance.goals = {}
 

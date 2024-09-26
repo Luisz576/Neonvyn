@@ -30,10 +30,11 @@ local SlimeData = {
         -- attributes
         speed = 80,
         maxHealth = 10,
+        receivingDamageTime = 20,
         -- damage
         damage = 2,
         criticalMultiplier = 1.5,
-        criticalBasePercent = 20,
+        criticalBasePercent = 0.2,
         -- sprite and animation configuration
         spriteSheetPath = "assets/entities/slime.png",
         spriteFrameWidth = 20,
@@ -56,7 +57,7 @@ SlimeData.__index = SlimeData
 
 -- constructor
 function Slime:new(level, groups, collisionGroups, slimeData)
-    local instance = NPEntity:new(EntityType.SLIME, slimeData.entityClassification, level, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY, slimeData.maxHealth)
+    local instance = NPEntity:new(EntityType.SLIME, slimeData.entityClassification, level, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY, slimeData.maxHealth, slimeData.receivingDamageTime)
 
     -- slime attributes
     instance.slime = {}
@@ -261,13 +262,22 @@ function Slime:_slimeBehaviour(dt)
     end
 end
 
--- update
-function Slime:update(dt)
-    -- update animation
-    self:_animate(dt)
+-- onReceivingDamage
+function Slime:_onReceivingDamageState(dt)
+    -- stop attacking if receiving damage
+    self:_stopAttacking()
+    -- super
+    NPEntity._onReceivingDamageState(self, dt)
+end
 
-    if self.attacking then
-        -- attacking
+-- state manager
+function Slime:_state(dt)
+    self.canMove = true
+    -- receivingDamage
+    if self.state.receivingDamage then
+        self:_onReceivingDamageState(dt)
+    -- attacking
+    elseif self.attacking then
         self:_attacking()
     else
         -- update goals
@@ -277,7 +287,14 @@ function Slime:update(dt)
         -- slime behavior
         self:_slimeBehaviour(dt)
     end
+end
 
+-- update
+function Slime:update(dt)
+    -- states logic
+    self:_state(dt)
+    -- update animation
+    self:_animate(dt)
     -- super
     NPEntity.update(self, dt)
 end
@@ -285,8 +302,6 @@ end
 -- draw
 function Slime:draw()
     self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x + self.sprite.spriteFixX, self.rect.y + self.sprite.spriteFixY, nil, self.sprite.scale)
-    -- love.graphics.rectangle("fill", self.rect.x, self.rect.y, self.rect.width, self.rect.height)
-    -- love.graphics.rectangle("fill", self.hitbox.x, self.hitbox.y, self.hitbox.width, self.hitbox.height)
 end
 
 return {

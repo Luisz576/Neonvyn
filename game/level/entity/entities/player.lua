@@ -1,5 +1,6 @@
 local love = require "love"
 local Direction = require "libraries.llove.util".Direction
+local printTable = require "libraries.llove.util".printTable
 local Animation = require "libraries.llove.animation".Animation
 local AnimationController = require "libraries.llove.animation".AnimationController
 local AnimationGrid = require "libraries.llove.animation".AnimationGrid
@@ -7,28 +8,29 @@ local LivingEntity = require "game.level.entity.living_entity"
 local EntityType = require "game.level.entity.entity_type"
 local EntityClassification = require "game.level.entity.entity_classification"
 local Shader = require "game.shader".Shader
+local Inventory = require "game.level.inventory.inventory"
 -- local Hurtbox = require "game.components.hutbox"
 
 local Player = setmetatable({}, LivingEntity)
 Player.__index = Player
 
 local PlayerConfiguration = {
-    maxBaseHealth = 5
+    maxBaseHealth = 10,
+    inventoryBaseSize = 5,
+    baseReceivingDamageTime = 0.1
 }
 
 -- constructor
 function Player:new(level, groups, collisionGroups, damageHurtboxGroup)
     local scale = 2
-    local instance = LivingEntity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, level, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1, PlayerConfiguration.maxBaseHealth)
+    local instance = LivingEntity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, level, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1, PlayerConfiguration.maxBaseHealth, PlayerConfiguration.baseReceivingDamageTime)
 
-    -- state
-    instance.state = {}
-    instance.state.receivingDamage = false
-    instance.state.receivingDamageTime = 0.15
-    instance.state.receivingDamageDelta = 0
+    -- attributes
+    instance.canPickupItem = true
 
     -- components
     -- instance.hurtbox = Hurtbox:new(instance, x, y, 17 * scale, 25 * scale, damageHurtboxGroup, instance, "onHurtboxJoin", "onHurtboxQuit")
+    instance.inventory = Inventory:new(PlayerConfiguration.inventoryBaseSize, "Player's Inventory")
 
     -- animationa
     instance.sprite = {}
@@ -126,17 +128,22 @@ function Player:_state(dt)
         self.state.receivingDamageDelta = self.state.receivingDamageDelta - dt
         -- stop receiving damage
         if self.state.receivingDamageDelta <= 0 then
-            self.state.receivingDamageDelta = 0
-            self.state.receivingDamage = false
+            self:_stopReceivingDamage()
             self.canMove = true
         end
     end
 end
 
 -- pickup item
+---@return integer
 function Player:pickupItem(item)
-    -- TODO: inventory system
-    print(item:displayName())
+    if self.canPickupItem then
+        -- TODO: make in just one line
+        local remainingAmount = self.inventory:add(item)
+        print(item:displayName(), " - ", item.amount - remainingAmount)
+        return remainingAmount
+    end
+    return item.amount
 end
 
 -- onHurtbox join
@@ -149,23 +156,11 @@ end
 --     print("quit")
 -- end
 
--- on get hurted
-function Player:_onHurt(source)
-    -- verification if can receive damage
-    if not self.state.receivingDamage then
-        -- set receiving damage state
-        self.state.receivingDamage = true
-        self.state.receivingDamageDelta = self.state.receivingDamageTime
-        print(tostring(self.health.h) .. "/" .. tostring(self.health.mh))
-        -- super
-        LivingEntity._onHurt(self, source)
-    end
-end
-
 -- on die
 function Player:_onDie(source)
-    print("DIE")
-    self:destroy()
+    print("GAME OVER")
+    -- super
+    LivingEntity.destroy(self)
 end
 
 -- update
