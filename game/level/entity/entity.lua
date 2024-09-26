@@ -3,30 +3,30 @@ local Rect = require "libraries.llove.component".Rect
 local Vector2D = require "libraries.llove.math".Vector2D
 local Axis = require "libraries.llove.util".Axis
 local Groups = require "game.groups"
-local Health = require "game.components.health"
 
 local Entity = setmetatable({}, Sprite)
 Entity.__index = Entity
 
 -- constructor
-function Entity:new(entityType, entityClassification, x, y, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY, maxHealth)
+function Entity:new(entityType, level, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY)
     local instance = Sprite:new(groups)
 
-    instance.rect = Rect:new(x, y, width, height)
+    instance.level = level
+    instance._spawned = false
+    instance.rect = Rect:new(0, 0, width, height)
     hitboxRelationX = hitboxRelationX or 1
     hitboxRelationY = hitboxRelationY or 1
     instance.hitbox = instance.rect:inflate(hitboxRelationX * width, hitboxRelationY * height)
 
     -- attributes
     instance.entityType = entityType
-    instance.entityClassification = entityClassification
     instance.velocity = Vector2D:zero()
     instance.speed = 200
     instance.canMove = true
 
-    -- components
-    instance.health = Health:new(instance, maxHealth)
-    instance.health:addListener(instance, "_onHeal", "_onHurt")
+    instance.__gc = function ()
+        print("I WAS DELETED")
+    end
 
     -- groups
     instance.collisionGroups = collisionGroups or {}
@@ -35,9 +35,20 @@ function Entity:new(entityType, entityClassification, x, y, width, height, group
     return setmetatable(instance, self)
 end
 
--- current health
-function Entity:getHealth()
-    return self.health.h
+-- is spawned
+function Entity:spawned()
+    return self._spawned
+end
+
+-- spawn
+function Entity:spawn(x, y)
+    if not self._spawned then
+        self.rect.x = x
+        self.rect.y = y
+        self.level:_spawnEntity(self)
+        self._spawned = true
+    end
+    return self
 end
 
 -- position
@@ -54,6 +65,20 @@ end
 -- return if player is moving
 function Entity:isMoving()
     return self.velocity.x ~= 0 or self.velocity.y ~= 0
+end
+
+-- remove
+function Entity:remove()
+    if self._spawned then
+        self.level:_removeEntity(self)
+        self._spawned = false
+    end
+end
+
+-- destroy
+function Entity:destroy()
+    self:remove()
+    self:removeFromGroups()
 end
 
 -- move logic
@@ -110,18 +135,6 @@ function Entity:update(dt)
     -- moviment logic
     if self.canMove then
         self:_move(dt)
-    end
-end
-
--- on die
-function Entity:_onDie(source) end
-
--- on get healed
-function Entity:_onHeal(source) end
--- on get hurted
-function Entity:_onHurt(source)
-    if self.health.h <= 0 then
-        self:_onDie(source)
     end
 end
 

@@ -8,7 +8,7 @@ local NPEntity = require "game.level.entity.npentity"
 local EntityType = require "game.level.entity.entity_type"
 local EntityClassification = require "game.level.entity.entity_classification"
 local Groups = require "game.groups"
-local Shader = require "game.shader.shader".Shader
+local Shader = require "game.shader".Shader
 local DamageType = require "game.components.damage_source".DamageType
 -- goals
 local LookAtTargetGoal = require "game.level.entity.ai.look_at_target_goal"
@@ -55,8 +55,8 @@ local SlimeData = {
 SlimeData.__index = SlimeData
 
 -- constructor
-function Slime:new(x, y, groups, collisionGroups, slimeData)
-    local instance = NPEntity:new(EntityType.SLIME, slimeData.entityClassification, x, y, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY, slimeData.maxHealth)
+function Slime:new(level, groups, collisionGroups, slimeData)
+    local instance = NPEntity:new(EntityType.SLIME, slimeData.entityClassification, level, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY, slimeData.maxHealth)
 
     -- slime attributes
     instance.slime = {}

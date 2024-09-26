@@ -14,6 +14,50 @@ function ChaseTargetGoal:new(entity, distanceToChangeDirection, distanceToStopCh
     return setmetatable(instance, self)
 end
 
+function ChaseTargetGoal._chase(entity, entityX, targetX, entityY, targetY, disX, disY, distanceToChangeDirection)
+    -- x chase
+    if entityX > targetX then
+        if entity.velocity.x ~= 0 then
+            if disX > distanceToChangeDirection then
+                entity.velocity.x = -1
+            end
+        else
+            entity.velocity.x = -1
+        end
+    elseif entityX < targetX then
+        if entity.velocity.x ~= 0 then
+            if disX > distanceToChangeDirection then
+                entity.velocity.x = 1
+            end
+        else
+            entity.velocity.x = 1
+        end
+    else
+        entity.velocity.x = 0
+    end
+
+    -- y chase
+    if entityY > targetY then
+        if entity.velocity.y ~= 0 then
+            if disY > distanceToChangeDirection then
+                entity.velocity.y = -1
+            end
+        else
+            entity.velocity.y = -1
+        end
+    elseif entityY < targetY then
+        if entity.velocity.y ~= 0 then
+            if disY > distanceToChangeDirection then
+                entity.velocity.y = 1
+            end
+        else
+            entity.velocity.y = 1
+        end
+    else
+        entity.velocity.y = 0
+    end
+end
+
 -- update
 function ChaseTargetGoal:update(dt)
     if self.entity.target ~= nil then
@@ -29,47 +73,7 @@ function ChaseTargetGoal:update(dt)
             return
         end
 
-        -- x chase
-        if entityX > targetX then
-            if self.entity.velocity.x ~= 0 then
-                if disX > distanceToChangeDirection then
-                    self.entity.velocity.x = -1
-                end
-            else
-                self.entity.velocity.x = -1
-            end
-        elseif entityX < targetX then
-            if self.entity.velocity.x ~= 0 then
-                if disX > distanceToChangeDirection then
-                    self.entity.velocity.x = 1
-                end
-            else
-                self.entity.velocity.x = 1
-            end
-        else
-            self.entity.velocity.x = 0
-        end
-
-        -- y chase
-        if entityY > targetY then
-            if self.entity.velocity.y ~= 0 then
-                if disY > distanceToChangeDirection then
-                    self.entity.velocity.y = -1
-                end
-            else
-                self.entity.velocity.y = -1
-            end
-        elseif entityY < targetY then
-            if self.entity.velocity.y ~= 0 then
-                if disY > distanceToChangeDirection then
-                    self.entity.velocity.y = 1
-                end
-            else
-                self.entity.velocity.y = 1
-            end
-        else
-            self.entity.velocity.y = 0
-        end
+        self._chase(self.entity, entityX, targetX, entityY, targetY, disX, disY, distanceToChangeDirection)
     else
         self.entity.velocity.x = 0
         self.entity.velocity.y = 0

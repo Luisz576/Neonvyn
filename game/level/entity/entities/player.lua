@@ -3,13 +3,13 @@ local Direction = require "libraries.llove.util".Direction
 local Animation = require "libraries.llove.animation".Animation
 local AnimationController = require "libraries.llove.animation".AnimationController
 local AnimationGrid = require "libraries.llove.animation".AnimationGrid
-local Entity = require "game.level.entity.entity"
+local LivingEntity = require "game.level.entity.living_entity"
 local EntityType = require "game.level.entity.entity_type"
 local EntityClassification = require "game.level.entity.entity_classification"
-local Shader = require "game.shader.shader".Shader
+local Shader = require "game.shader".Shader
 -- local Hurtbox = require "game.components.hutbox"
 
-local Player = setmetatable({}, Entity)
+local Player = setmetatable({}, LivingEntity)
 Player.__index = Player
 
 local PlayerConfiguration = {
@@ -17,9 +17,9 @@ local PlayerConfiguration = {
 }
 
 -- constructor
-function Player:new(x, y, groups, collisionGroups, damageHurtboxGroup)
+function Player:new(level, groups, collisionGroups, damageHurtboxGroup)
     local scale = 2
-    local instance = Entity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, x, y, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1, PlayerConfiguration.maxBaseHealth)
+    local instance = LivingEntity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, level, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1, PlayerConfiguration.maxBaseHealth)
 
     -- state
     instance.state = {}
@@ -133,6 +133,12 @@ function Player:_state(dt)
     end
 end
 
+-- pickup item
+function Player:pickupItem(item)
+    -- TODO: inventory system
+    print(item:displayName())
+end
+
 -- onHurtbox join
 -- function Player:onHurtboxJoin(sprite)
 --     print("join")
@@ -152,13 +158,14 @@ function Player:_onHurt(source)
         self.state.receivingDamageDelta = self.state.receivingDamageTime
         print(tostring(self.health.h) .. "/" .. tostring(self.health.mh))
         -- super
-        Entity._onHurt(self, source)
+        LivingEntity._onHurt(self, source)
     end
 end
 
+-- on die
 function Player:_onDie(source)
     print("DIE")
-    self:removeFromGroups()
+    self:destroy()
 end
 
 -- update
@@ -170,7 +177,7 @@ function Player:update(dt)
     -- animate
     self:_animate(dt)
     -- call super
-    Entity.update(self, dt)
+    LivingEntity.update(self, dt)
     -- hurtbox
     -- self.hurtbox:update()
 end
