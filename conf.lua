@@ -1,5 +1,5 @@
 function love.conf(t)
-    t.console = true
+    -- t.console = true
     t.gammacorrect = true
     t.window.title = "Dude Just Survive"
     t.window.width = 860

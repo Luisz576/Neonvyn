@@ -50,6 +50,11 @@ end
 
 -- on die
 function LivingEntity:_onDie(source)
+    self:_dropLoot()
+    self:destroy()
+end
+
+function LivingEntity:_dropLoot()
     if self.dropLootType > 0 then
         if self.dropLootType == 1 then
             -- TODO: load loot table
@@ -59,7 +64,6 @@ function LivingEntity:_onDie(source)
             end
         end
     end
-    self:destroy()
 end
 
 -- on get healed
