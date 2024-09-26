@@ -17,10 +17,16 @@ local function sortByZLayer(a, b)
 end
 
 -- ? probably create based on canvas?
-function SpritesRenderGroup:draw()
+function SpritesRenderGroup:draw(shader)
+    if shader ~= nil then
+        love.graphics.setShader(shader)
+    end
     table.sort(self._sprites, sortByZLayer)
     for _, sprite in pairs(self._sprites) do
         sprite:draw()
+    end
+    if shader ~= nil then
+        love.graphics.setShader()
     end
 end
 

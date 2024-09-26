@@ -184,10 +184,11 @@ end
 
 -- draw
 function Player:draw()
-    local needsToClearShader = false
+    local needsToReplaceShader, oldShader = false, nil
     -- damage shader
     if self.state.receivingDamage then
-        needsToClearShader = true
+        needsToReplaceShader = true
+        oldShader = love.graphics:getShader()
         love.graphics.setShader(self.sprite.shaders.damage_flash)
         local percentOfReceivingDamage = (self.state.receivingDamageDelta / self.state.receivingDamageTime)
         -- intensity
@@ -196,8 +197,8 @@ function Player:draw()
     -- draw player sprite
     self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
     -- clear shader
-    if needsToClearShader then
-        love.graphics.setShader()
+    if needsToReplaceShader then
+        love.graphics.setShader(oldShader)
     end
 end
 

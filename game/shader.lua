@@ -4,7 +4,8 @@ local Shader = ShaderManager:new()
 
 -- all shaders
 local _shadersToLoad = {
-    damage_flash = "assets/shaders/damage_flash.glsl"
+    damage_flash = "assets/shaders/damage_flash.glsl",
+    sunset = "assets/shaders/sunset.glsl"
 }
 
 -- load

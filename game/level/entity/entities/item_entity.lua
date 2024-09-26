@@ -37,7 +37,7 @@ function ItemEntity:update(dt)
             local spriteCenter, selfCenter = sprite.rect:center(), self.rect:center()
             local dis = pointsDis(selfCenter, spriteCenter)
             if dis < self.attractableDistance then
-                if dis < 2 then
+                if dis < 5 then
                     sprite:pickupItem(self.item)
                     self:destroy()
                     return

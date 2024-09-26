@@ -5,6 +5,7 @@ local Slime = require "game.level.entity.entities.slime"
 local ItemEntity = require "game.level.entity.entities.item_entity"
 local Item = require "game.level.item.item"
 local Items = require "game.level.item.items"
+local Shader = require "game.shader".Shader
 
 local Level = {}
 Level.__index = Level
@@ -13,6 +14,7 @@ function Level:new()
     local instance = {
         gameMap = sti('maps/world_1.lua'),
         groups = {},
+        shaders = {},
         _entities = {},
     }
     -- groups
@@ -23,6 +25,10 @@ function Level:new()
 end
 
 function Level:load()
+    -- shaders
+    self.shaders.sunsetShader = Shader:get("sunset")
+    self.shaders.sunsetShader:send("sunset_intensity", 0.3)
+    -- player
     Player:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, {self.groups.entitiesGroup}):spawn(100, 100)
     -- spawn random slimes
     for i = 1, 10, 1 do
@@ -62,7 +68,7 @@ function Level:draw()
     -- TODO: look better
     self.gameMap:draw(0, 0, 2, 2)
     -- draw sprites render group
-    self.groups.spritesRender:draw()
+    self.groups.spritesRender:draw(self.shaders.sunsetShader)
 end
 
 return Level
