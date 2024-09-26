@@ -30,11 +30,11 @@ local SlimeData = {
         -- attributes
         speed = 80,
         maxHealth = 10,
-        receivingDamageTime = 20,
+        receivingDamageTime = 0.3,
         -- damage
         damage = 2,
         criticalMultiplier = 1.5,
-        criticalBasePercent = 0.2,
+        criticalBasePercent = 20,
         -- sprite and animation configuration
         spriteSheetPath = "assets/entities/slime.png",
         spriteFrameWidth = 20,
@@ -122,19 +122,19 @@ function Slime:new(level, groups, collisionGroups, slimeData)
         attacking_down = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-7',
             frameYInterval = 7
-        }), 8, 2),
+        }), 10, 2),
         attacking_right = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
             frameYInterval = 5
-        }), 8, 2),
+        }), 10, 2),
         attacking_up = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
             frameYInterval = 5
-        }), 8, 2),
+        }), 10, 2),
         attacking_left = Animation:new(instance.sprite.grid:frames({
             frameXInterval = '1-6',
             frameYInterval = 5
-        }), 8, 2):flipX(),
+        }), 10, 2):flipX(),
     }, "idle_down", true)
     instance.sprite.direction = Direction.down
     -- shaders
@@ -301,7 +301,22 @@ end
 
 -- draw
 function Slime:draw()
-    self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x + self.sprite.spriteFixX, self.rect.y + self.sprite.spriteFixY, nil, self.sprite.scale)
+    local needsToReplaceShader, oldShader = false, nil
+    -- damage shader
+    if self.state.receivingDamage then
+        needsToReplaceShader = true
+        oldShader = love.graphics:getShader()
+        love.graphics.setShader(self.sprite.shaders.damage_flash)
+        local percentOfReceivingDamage = (self.state.receivingDamageDelta / self.state.receivingDamageTime)
+        -- intensity
+        self.sprite.shaders.damage_flash:send("flash_intensity", percentOfReceivingDamage)
+    end
+    -- draw player sprite
+    self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
+    -- clear shader
+    if needsToReplaceShader then
+        love.graphics.setShader(oldShader)
+    end
 end
 
 return {

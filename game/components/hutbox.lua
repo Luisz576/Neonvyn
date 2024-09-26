@@ -9,6 +9,7 @@ Hurtbox.__index = Hurtbox
 function Hurtbox:new(parent, x, y, width, height, groups, listener, onJoinFunctionName, onExitFunctionName)
     local instance = Rect:new(x, y, width, height)
 
+    instance.actived = true
     instance._sprites = {}
     instance.parent = parent
     instance.groups = groups or {}
@@ -21,31 +22,37 @@ end
 
 -- update
 function Hurtbox:update()
-    -- update hutbox position
-    self:setCenter(self.parent.rect:center())
-
-    local sprites
-    for _, group in pairs(self.groups) do
-        sprites = group:sprites()
-        for _, sprite in pairs(sprites) do
-            if sprite ~= self.parent then
-                -- sprite join
-                if self:collideRect(sprite.hitbox) then
-                    if not tableContains(self._sprites, sprite) then
-                        -- save sprite
-                        table.insert(self._sprites, sprite)
-                        if self.onJoinFunctionName ~= nil then
-                            self.listener[self.onJoinFunctionName](self.listener, sprite)
+    if self.actived then
+        local sprites
+        for _, group in pairs(self.groups) do
+            sprites = group:sprites()
+            for _, sprite in pairs(sprites) do
+                if sprite ~= self.parent then
+                    -- sprite join
+                    if self:collideRect(sprite.hitbox) then
+                        if not tableContains(self._sprites, sprite) then
+                            -- save sprite
+                            table.insert(self._sprites, sprite)
+                            if self.onJoinFunctionName ~= nil then
+                                self.listener[self.onJoinFunctionName](self.listener, sprite)
+                            end
                         end
-                    end
-                else
-                    -- sprite exit
-                    if ifTableContainsRemove(self._sprites, sprite) ~= nil then
-                        if self.onExitFunctionName ~= nil then
-                            self.listener[self.onExitFunctionName](self.listener, sprite)
+                    else
+                        -- sprite exit
+                        if ifTableContainsRemove(self._sprites, sprite) ~= nil then
+                            if self.onExitFunctionName ~= nil then
+                                self.listener[self.onExitFunctionName](self.listener, sprite)
+                            end
                         end
                     end
                 end
+            end
+        end
+    else
+        for i, sprite in pairs(self._sprites) do
+            table.remove(self._sprites, i)
+            if self.onExitFunctionName ~= nil then
+                self.listener[self.onExitFunctionName](self.listener, sprite)
             end
         end
     end

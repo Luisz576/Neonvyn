@@ -11,6 +11,7 @@ function LivingEntity:new(entityType, entityClassification, level, width, height
     -- attributes
     instance.invulnerable = false
     instance.entityClassification = entityClassification
+    instance.dropLootType = 0
 
     -- state
     instance.state = instance.state or {}
@@ -49,6 +50,15 @@ end
 
 -- on die
 function LivingEntity:_onDie(source)
+    if self.dropLootType > 0 then
+        if self.dropLootType == 1 then
+            -- TODO: load loot table
+        elseif self.dropLootType == 2 then
+            if self.inventory then
+                -- TODO: drop items from inventory
+            end
+        end
+    end
     self:destroy()
 end
 
