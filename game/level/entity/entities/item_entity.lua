@@ -1,4 +1,5 @@
 local pointsDis = require "libraries.llove.math".pointsDis
+local effectFunction = require "libraries.llove.easing".Easings.EaseInCubic
 local Entity = require "game.level.entity.entity"
 local EntityType = require "game.level.entity.entity_type"
 local ChaseTargetGoal = require "game.level.entity.ai.chase_target_goal"
@@ -15,7 +16,7 @@ function ItemEntity:new(item, level, groups, collisionGroups, catcherGroup, hitb
     instance.catcherGroup = catcherGroup or {
         sprites = function () return {} end
     }
-    instance.distanceToChangeDirectionWhenBeenAttracted = 15
+    instance.distanceToChangeDirectionWhenBeenAttracted = 10
     instance.catchMethod = "pickupItem"
     -- ? it should be moved to player or entity that can 'pickupItem' to be applied effects on it's attraction by items
     instance.attractableDistance = 50
@@ -41,13 +42,15 @@ function ItemEntity:update(dt)
                     self:destroy()
                     return
                 end
+                -- TODO: fix this
                 -- attract
                 local disX, disY = selfCenter.x - spriteCenter.x, selfCenter.y - spriteCenter.y
                 ChaseTargetGoal._chase(self, selfCenter.x, spriteCenter.x, selfCenter.y, spriteCenter.y, math.abs(disX), math.abs(disY), self.distanceToChangeDirectionWhenBeenAttracted)
                 -- effect of been attracted
-                local dis2 = (dis^2)
-                self.velocity.x = dt * (spriteCenter.x - selfCenter.x) / dis2
-                self.velocity.y = dt * (spriteCenter.y - selfCenter.y) / dis2
+                local progress = 1 - effectFunction.ratio(dis, self.attractableDistance)
+                local effectFunctionRes = effectFunction.f(progress)
+                self.velocity.x = self.velocity.x * dt * effectFunctionRes
+                self.velocity.y = self.velocity.y * dt * effectFunctionRes
                 break
             end
         end
