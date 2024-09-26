@@ -255,7 +255,7 @@ function Slime:_slimeBehaviour(dt)
             end
         else
             if self.sprite.animationController:animation():remainingFrames() == 0 then
-                self.slime.deltaMove = self.slime.delayToMove
+                self.slime.deltaMove = math.random(self.slime.delayToMove / 2 , self.slime.delayToMove)
             end
         end
     end
