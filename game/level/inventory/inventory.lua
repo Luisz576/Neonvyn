@@ -167,16 +167,123 @@ function Inventory:addAt(item, index)
     return remaining
 end
 
--- remove
--- TODO
-
 -- contains
--- TODO
+---@param item { name: string | function } | string
+---@return boolean
+function Inventory:contains(item)
+    if type(item) ~= "string" then
+        if type(item.name) == "function" then
+            item = item:name()
+        else
+            item = item.name
+        end
+    end
+    --
+    local itemSlotName
+    for _, t in pairs(self._slots) do
+        if t.item ~= EMPTY then
+            if type(t.item.name) == "function" then
+                itemSlotName = t.item:name()
+            else
+                itemSlotName = t.item.name
+            end
+            if itemSlotName == item then
+                return true
+            end
+        end
+    end
+    return false
+end
 
 -- get
--- TODO
+---@param index integer
+---@return InventoryItem | nil
+function Inventory:get(index)
+    if index > self._size then
+        return nil
+    end
+    if self._slots[index].item ~= EMPTY then
+        return self._slots[index].item
+    end
+    return nil
+end
 
--- getIndex
--- TODO
+-- returns the index of the first occurrency of item
+---@param item { name: string | function } | string
+function Inventory:getIndexOfItem(item)
+    if type(item) ~= "string" then
+        if type(item.name) == "function" then
+            item = item:name()
+        else
+            item = item.name
+        end
+    end
+    --
+    local itemSlotName
+    for k, t in pairs(self._slots) do
+        if t.item ~= EMPTY then
+            if type(t.item.name) == "function" then
+                itemSlotName = t.item:name()
+            else
+                itemSlotName = t.item.name
+            end
+            if itemSlotName == item then
+                return k
+            end
+        end
+    end
+    return nil
+end
+
+-- remove
+---@param item { name: string | function } | string
+---@param amount integer
+---@return integer
+function Inventory:remove(item, amount)
+    local remaining = amount
+    if type(item) ~= "string" then
+        if type(item.name) == "function" then
+            item = item:name()
+        else
+            item = item.name
+        end
+    end
+    local itemSlotName
+    for k, t in pairs(self._slots) do
+        if t.item ~= EMPTY then
+            if type(t.item.name) == "function" then
+                itemSlotName = t.item:name()
+            else
+                itemSlotName = t.item.name
+            end
+            if itemSlotName == item then
+                remaining = self:removeAt(k, remaining)
+                if remaining <= 0 then
+                    break
+                end
+            end
+        end
+    end
+    return remaining
+end
+
+-- remove at position
+---@param index any
+---@param amount integer
+---@return integer
+function Inventory:removeAt(index, amount)
+    if index > self._size then
+        return amount
+    end
+    if self._slots[index].item ~= EMPTY then
+        local amountToRemove = math.min(amount, self._slots[index].item.amount)
+        self._slots[index].item.amount = self._slots[index].item.amount - amountToRemove
+        if self._slots[index].item.amount <= 0 then
+            self._slots[index].item = EMPTY
+        end
+        return amount - amountToRemove
+    end
+    return amount
+end
 
 return Inventory
