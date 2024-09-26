@@ -18,8 +18,13 @@ function Item:displayName()
 end
 
 -- real name
-function Item:itemName()
+function Item:name()
     return self._meta.name
+end
+
+-- max stack
+function Item:maxStack()
+    return self._meta.maxStack
 end
 
 -- sprite
