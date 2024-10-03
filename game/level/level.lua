@@ -30,7 +30,7 @@ function Level:load()
     self.shaders.sunsetShader = Shader:get("sunset")
     self.shaders.sunsetShader:send("sunset_intensity", 0.3)
     -- Agent
-    AgentRickEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup, self.groups.agentsGroup}, {}, {self.groups.entitiesGroup}):spawn(100, 100)
+    AgentRickEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup, self.groups.agentsGroup}, {}):spawn(100, 100)
     -- spawn random slimes
     for i = 1, 10, 1 do
         GreenSlimeEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, self.groups.agentsGroup):spawn(math.random(0, 600), math.random(0, 600))

@@ -1,63 +1,31 @@
 local love = require "love"
 local Direction = require "libraries.llove.util".Direction
-local Animation = require "libraries.llove.animation".Animation
-local AnimationController = require "libraries.llove.animation".AnimationController
-local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 local LivingEntity = require "game.level.entity.living_entity"
 local EntityType = require "game.level.entity.entity_type"
 local EntityClassification = require "game.level.entity.entity_classification"
-local Shader = require "game.shader".Shader
 local Inventory = require "game.level.inventory.inventory"
-local SpriteComponent = require "game.components.sprite_component"
-local Area2D = require "libraries.llove.component".Area2D
-local DamageType = require "game.components.damage_source".DamageType
 
 local AgentEntity = setmetatable({}, LivingEntity)
 AgentEntity.__index = AgentEntity
 
--- TODO: organize this Agent Data
 ---@class AgentData
 ---@field name string
 ---@field width number
 ---@field height number
 ---@field maxBaseHealth integer
 ---@field inventoryBaseSize integer
----@field baseReceivingDamageTime number
----@field attackDistance integer
----@field baseDamage integer
----@field criticalBasePercent integer
----@field criticalMultiplier integer
 ---@field sprite { scale: number, width: number, height: number }
----@field animations any
 
 -- constructor
 ---@param agentData AgentData
-function AgentEntity:new(level, agentData, groups, collisionGroups, attackableGroup)
+function AgentEntity:new(level, groups, collisionGroups, agentData)
     local instance = LivingEntity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, level, agentData.width, agentData.height, groups, collisionGroups, 1, 1, agentData.maxBaseHealth)
 
     -- attributes
-    instance.agentData = agentData
     instance.canPickupItem = true
 
     -- components
     instance.inventory = Inventory:new(agentData.inventoryBaseSize, "Agent's Inventory")
-
-    -- animationa
-    instance.sprite = SpriteComponent:new(love.graphics.newImage("assets/entities/player.png"), agentData.sprite.scale)
-    instance.sprite.grid = AnimationGrid:new(agentData.sprite.width, agentData.sprite.height, instance.sprite.texture:getWidth(), instance.sprite.texture:getHeight())
-    local agentAnimations = {}
-    for name, config in pairs(agentData.animations) do
-        agentAnimations[name] = Animation:new(instance.sprite.grid:frames({
-            frameXInterval = config.frameXInterval,
-            frameYInterval = config.frameYInterval
-        }), config.speed, agentData.sprite.scale)
-    end
-    instance.sprite.animationController = AnimationController:new(agentAnimations, "idle", true)
-    instance.sprite.direction = Direction.right
-    -- shaders
-    instance.sprite.shaders = {
-        damage_flash = Shader:get("damage_flash")
-    }
 
     return setmetatable(instance, self)
 end
@@ -113,14 +81,6 @@ function AgentEntity:pickupItem(item)
     return item.amount
 end
 
--- calculate damage
-function AgentEntity:_calculateDamageTo(sprite)
-    if self.agentData.criticalBasePercent > math.random(1, 100) then
-        return self.agentData.baseDamage * self.agentData.criticalMultiplier
-    end
-    return self.agentData.baseDamage
-end
-
 -- on die
 function AgentEntity:_onDie(source)
     print("GAME OVER")
@@ -140,18 +100,6 @@ function AgentEntity:update(dt)
     self:_input()
     -- call super
     LivingEntity.update(self, dt)
-end
-
--- draw
-function AgentEntity:draw()
-    local needsToReplaceShader, oldShader = false, nil
-    -- TODO: damage shader
-    -- draw sprite
-    self.sprite.animationController:draw(self.sprite.texture, self.rect.x, self.rect.y, nil, self.sprite.scale, self.sprite.scale)
-    -- clear shader
-    if needsToReplaceShader then
-        love.graphics.setShader(oldShader)
-    end
 end
 
 return AgentEntity
