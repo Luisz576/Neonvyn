@@ -1,6 +1,6 @@
-local Goal = require "game.level.entity.ai.goal"
 local pointsDis = require "libraries.llove.math".pointsDis
-local directionToPoint = require "libraries.llove.util".directionToPoint
+local Direction = require "libraries.llove.util".Direction
+local Goal = require "game.level.entity.ai.goal"
 
 local LookAtTargetGoal = setmetatable({}, Goal)
 LookAtTargetGoal.__index = LookAtTargetGoal
@@ -38,8 +38,11 @@ function LookAtTargetGoal:update(dt)
                 entityPos = self.entity.rect:center()
                 spritePos = sprite.rect:center()
                 if pointsDis(entityPos, spritePos) < self.viewDistance then
-                    self.entity.sprite.direction = directionToPoint(entityPos, spritePos)
-                    return
+                    if entityPos.x < spritePos.x then
+                        self.entity.sprite.direction = Direction.right
+                    else
+                        self.entity.sprite.direction = Direction.left
+                    end
                 end
             end
         end

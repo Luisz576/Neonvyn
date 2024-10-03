@@ -2,6 +2,7 @@ local Sprite = require "libraries.llove.component".Sprite
 local Rect = require "libraries.llove.component".Rect
 local Vector2D = require "libraries.llove.math".Vector2D
 local Axis = require "libraries.llove.util".Axis
+local StateMachine = require "libraries.llove.state_machine".StateMachine
 local Groups = require "game.groups"
 
 local Entity = setmetatable({}, Sprite)
@@ -17,6 +18,9 @@ function Entity:new(entityType, level, width, height, groups, collisionGroups, h
     hitboxRelationX = hitboxRelationX or 1
     hitboxRelationY = hitboxRelationY or 1
     instance.hitbox = instance.rect:inflate(hitboxRelationX * width, hitboxRelationY * height)
+
+    -- components
+    instance.stateMachine = StateMachine:new()
 
     -- attributes
     instance.entityType = entityType
@@ -128,6 +132,8 @@ end
 function Entity:update(dt)
     -- update z
     self.z = self.rect:bottom()
+    -- state machine
+    self.stateMachine:update(dt)
     -- moviment logic
     if self.canMove then
         self:_move(dt)

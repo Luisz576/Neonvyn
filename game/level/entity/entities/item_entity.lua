@@ -2,7 +2,6 @@ local pointsDis = require "libraries.llove.math".pointsDis
 local effectFunction = require "libraries.llove.easing".Easings.EaseInCubic
 local Entity = require "game.level.entity.entity"
 local EntityType = require "game.level.entity.entity_type"
-local ChaseTargetGoal = require "game.level.entity.ai.chase_target_goal"
 
 local ItemEntity = setmetatable({}, Entity)
 ItemEntity.__index = ItemEntity
@@ -50,7 +49,7 @@ function ItemEntity:update(dt)
                 -- TODO: fix this
                 -- attract
                 local disX, disY = selfCenter.x - spriteCenter.x, selfCenter.y - spriteCenter.y
-                ChaseTargetGoal._chase(self, selfCenter.x, spriteCenter.x, selfCenter.y, spriteCenter.y, math.abs(disX), math.abs(disY), self.distanceToChangeDirectionWhenBeenAttracted)
+                -- TODO: ChaseTargetGoal._chase(self, selfCenter.x, spriteCenter.x, selfCenter.y, spriteCenter.y, math.abs(disX), math.abs(disY), self.distanceToChangeDirectionWhenBeenAttracted)
                 -- effect of been attracted
                 local progress = 1 - effectFunction.ratio(dis, self.attractableDistance)
                 local effectFunctionRes = effectFunction.f(progress)

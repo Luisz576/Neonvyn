@@ -15,6 +15,7 @@ local AgentRickData = {
     criticalMultiplier = 2,
 }
 
+-- constructor
 function AgentRickEntity:new(level, groups, collisionGroups, attackableGroup)
     local instance = AgentEntity:new(level, AgentRickData, groups, collisionGroups, attackableGroup)
     return setmetatable(instance, AgentEntity)
