@@ -20,6 +20,7 @@ function EntityChasingState:enter(target)
     self.target = target
 end
 
+-- chase target
 function EntityChasingState._chase(entity, entityX, targetX, entityY, targetY, disX, disY, distanceToChangeDirection)
     -- x chase
     if entityX > targetX then
@@ -66,13 +67,12 @@ end
 
 -- update
 function EntityChasingState:update(dt)
-    -- TODO: BUG HERE
     if self.target ~= nil then
         local entityX, entityY = self.entity.rect:centerX(), self.entity.rect:centerY()
         local targetX, targetY = self.target.rect:centerX(), self.target.rect:centerY()
         local disX, disY = math.abs(entityX - targetX), math.abs(entityY - targetY)
         -- is close
-        if pointsDis(self.entity.rect:center(), self.target.rect:center()) < self.distanceToStopChasing then
+        if pointsDis(self.entity.rect:center(), self.target.rect:center()) > self.distanceToStopChasing then
             self.stateMachine:change(self.idleState)
             return
         end

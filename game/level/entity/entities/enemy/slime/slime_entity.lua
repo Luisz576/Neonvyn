@@ -27,7 +27,7 @@ local SlimeData = {
         speed = 80,
         maxHealth = 10,
         receivingDamageTime = 0.3,
-        viewDistance = 100,
+        viewDistance = 350,
         -- damage
         damage = 2,
         criticalMultiplier = 1.5,
@@ -59,7 +59,7 @@ local SlimeData = {
             }
         },
         -- slime configuration
-        delayToMove = 1.6
+        delayToMove = 1
     }
 }
 SlimeData.__index = SlimeData
@@ -172,10 +172,10 @@ end
 -- state manager
 function SlimeEntity:_state(dt)
     self.canMove = true
-    -- receivingDamage
-    self:_slimeBehaviour(dt)
     -- super
     LivingEntity._state(self, dt)
+    -- receivingDamage
+    self:_slimeBehaviour(dt)
 end
 
 -- draw

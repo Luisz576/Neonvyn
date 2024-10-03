@@ -35,7 +35,7 @@ function Level:load()
     for i = 1, 10, 1 do
         SlimeEntity.SlimeEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, self.groups.agentsGroup, SlimeEntity.SlimeData.NORMAL):spawn(math.random(0, 600), math.random(0, 600))
     end
-    for i = 1, 10, 1 do
+    for i = 1, 5, 1 do
         ItemEntity:new(Item:new(Items.APPLE, 2), self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, self.groups.entitiesGroup):spawn(math.random(0, 600), math.random(0, 600))
     end
 end
