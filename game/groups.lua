@@ -4,7 +4,8 @@ local Group = require "libraries.llove.component".Group
 local Groups = {
     SPRITES_RENDER = "sprites_render",
     COLLISION = "collision",
-    ENTITY = "entity"
+    ENTITY = "entity",
+    AGENT = "agent"
 }
 Groups.__index = Groups
 

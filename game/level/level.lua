@@ -20,6 +20,7 @@ function Level:new()
     -- groups
     instance.groups.spritesRender = Groups.newGroup(Groups.SPRITES_RENDER)
     instance.groups.entitiesGroup = Groups.newGroup(Groups.ENTITY)
+    instance.groups.agentsGroup = Groups.newGroup(Groups.AGENT)
 
     return setmetatable(instance, self)
 end
@@ -29,10 +30,10 @@ function Level:load()
     self.shaders.sunsetShader = Shader:get("sunset")
     self.shaders.sunsetShader:send("sunset_intensity", 0.3)
     -- Agent
-    AgentRickEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, {self.groups.entitiesGroup}):spawn(100, 100)
+    AgentRickEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup, self.groups.agentsGroup}, {}, {self.groups.entitiesGroup}):spawn(100, 100)
     -- spawn random slimes
     for i = 1, 10, 1 do
-        SlimeEntity.SlimeEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, SlimeEntity.SlimeData.NORMAL):spawn(math.random(0, 600), math.random(0, 600))
+        SlimeEntity.SlimeEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, self.groups.agentsGroup, SlimeEntity.SlimeData.NORMAL):spawn(math.random(0, 600), math.random(0, 600))
     end
     for i = 1, 10, 1 do
         ItemEntity:new(Item:new(Items.APPLE, 2), self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, self.groups.entitiesGroup):spawn(math.random(0, 600), math.random(0, 600))

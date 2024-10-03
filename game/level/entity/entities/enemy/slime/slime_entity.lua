@@ -10,7 +10,8 @@ local Groups = require "game.groups"
 local Shader = require "game.shader".Shader
 local DamageType = require "game.components.damage_source".DamageType
 -- states
-local EntityWalkAroundState = require "game.level.entity.entities.states.entity_walk_around_state"
+local EnemyIdleState = require "game.level.entity.entities.states.enemy_idle_state"
+local EntityChasingState = require "game.level.entity.entities.states.entity_chasing_state"
 
 local SlimeEntity = setmetatable({}, LivingEntity)
 SlimeEntity.__index = SlimeEntity
@@ -26,6 +27,7 @@ local SlimeData = {
         speed = 80,
         maxHealth = 10,
         receivingDamageTime = 0.3,
+        viewDistance = 100,
         -- damage
         damage = 2,
         criticalMultiplier = 1.5,
@@ -63,7 +65,7 @@ local SlimeData = {
 SlimeData.__index = SlimeData
 
 -- constructor
-function SlimeEntity:new(level, groups, collisionGroups, slimeData)
+function SlimeEntity:new(level, groups, collisionGroups, agentsGroup, slimeData)
     local instance = LivingEntity:new(EntityType.SLIME, slimeData.entityClassification, level, slimeData.width * slimeData.spriteScale, slimeData.height * slimeData.spriteScale, groups, collisionGroups, slimeData.hitboxRelationX, slimeData.hitboxRelationY, slimeData.maxHealth, slimeData.receivingDamageTime)
 
     -- slime attributes
@@ -76,6 +78,7 @@ function SlimeEntity:new(level, groups, collisionGroups, slimeData)
     instance.damage = 2
     instance.criticalMultiplier = 1.5
     instance.criticalBasePercent = 10
+    instance.viewDistance = slimeData.viewDistance
 
     -- attacking
     instance.attacking = false
@@ -84,6 +87,7 @@ function SlimeEntity:new(level, groups, collisionGroups, slimeData)
 
     -- groups
     instance.entityGroup = instance.getGroup(instance, Groups.ENTITY)
+    instance.agentsGroup = agentsGroup
 
     -- animationa
     instance.sprite = {}
@@ -118,7 +122,9 @@ end
 -- register states
 function SlimeEntity:_registerStates()
     -- idle
-    self.stateMachine:registerState("idle", EntityWalkAroundState:new(self, { min = 1, max = 5 }))
+    self.stateMachine:registerState("idle", EnemyIdleState:new(self, { min = 1, max = 5 }, self.viewDistance, self.agentsGroup, "chasing"))
+    -- chase
+    self.stateMachine:registerState("chasing", EntityChasingState:new(self, self.viewDistance, "idle"))
 end
 
 -- animate
@@ -224,27 +230,21 @@ end
 
 -- state manager
 function SlimeEntity:_state(dt)
-    self.canMove = true
     -- receivingDamage
-    if self.state.receivingDamage then
-        self:_onReceivingDamageState(dt)
-    -- attacking
-    elseif self.attacking then
-        self:_attacking()
-    else
-        -- slime behavior
-        self:_slimeBehaviour(dt)
-    end
-end
+    -- if self.state.receivingDamage then
+    --     self:_onReceivingDamageState(dt)
+    -- -- attacking
+    -- elseif self.attacking then
+    --     self:_attacking()
+    -- else
+    --     -- slime behavior
+    --     self:_slimeBehaviour(dt)
+    -- end
 
--- update
-function SlimeEntity:update(dt)
-    -- states logic
-    self:_state(dt)
-    -- update animation
-    self:_animate(dt)
+    self.canMove = true
+
     -- super
-    LivingEntity.update(self, dt)
+    LivingEntity._state(self, dt)
 end
 
 -- draw

@@ -128,16 +128,27 @@ function Entity:_collision(axis)
     end
 end
 
--- update
-function Entity:update(dt)
-    -- update z
-    self.z = self.rect:bottom()
+-- state
+function Entity:_state(dt)
     -- state machine
     self.stateMachine:update(dt)
+end
+
+-- animate
+function Entity:_animate(dt) end
+
+-- update
+function Entity:update(dt)
+    -- state
+    self:_state(dt)
     -- moviment logic
     if self.canMove then
         self:_move(dt)
     end
+    -- animation
+    self:_animate(dt)
+    -- update z
+    self.z = self.rect:bottom()
 end
 
 return Entity
