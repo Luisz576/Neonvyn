@@ -16,6 +16,16 @@ function LookAtTargetGoal:new(entity, possibleTargets, visionGroups, viewDistanc
     return setmetatable(instance, self)
 end
 
+-- is possible target
+function LookAtTargetGoal:isPossibleTarget(possibleTarget)
+    for _, posTar in pairs(self.possibleTargets) do
+        if getmetatable(possibleTarget) == posTar then
+            return true
+        end
+    end
+    return false
+end
+
 -- update
 function LookAtTargetGoal:update(dt)
     -- ?TODO: should change this
@@ -24,7 +34,7 @@ function LookAtTargetGoal:update(dt)
     for _, group in pairs(self.visionGroups) do
         sprites = group:sprites()
         for _, sprite in pairs(sprites) do
-            if sprite ~= self.entity then
+            if sprite ~= self.entity and self:isPossibleTarget(sprite) then
                 entityPos = self.entity.rect:center()
                 spritePos = sprite.rect:center()
                 if pointsDis(entityPos, spritePos) < self.viewDistance then
