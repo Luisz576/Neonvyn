@@ -29,6 +29,10 @@ end
 
 -- update
 function EnemyIdle:update(dt)
+    -- TODO: BUG HERE
+    -- reset speed
+    self.entity.velocity.x = 0
+    self.entity.velocity.y = 0
     -- walk around
     self.deltaToWalk = self.deltaToWalk - dt
     if self.deltaToWalk < 0 then

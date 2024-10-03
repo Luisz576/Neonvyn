@@ -5,11 +5,12 @@ local EntityChasingState = setmetatable({}, State)
 EntityChasingState.__index = EntityChasingState
 
 -- constructor
-function EntityChasingState:new(entity, distanceToStopChasing, idleState)
+function EntityChasingState:new(entity, distanceToStopChasing, idleState, distanceToChangeDirection)
     local instance = {
         entity = entity,
         distanceToStopChasing = distanceToStopChasing,
-        idleState = idleState
+        idleState = idleState,
+        distanceToChangeDirection = distanceToChangeDirection
     }
     return setmetatable(instance, self)
 end
@@ -65,6 +66,7 @@ end
 
 -- update
 function EntityChasingState:update(dt)
+    -- TODO: BUG HERE
     if self.target ~= nil then
         local entityX, entityY = self.entity.rect:centerX(), self.entity.rect:centerY()
         local targetX, targetY = self.target.rect:centerX(), self.target.rect:centerY()
@@ -75,7 +77,7 @@ function EntityChasingState:update(dt)
             return
         end
 
-        self._chase(self.entity, entityX, targetX, entityY, targetY, disX, disY, self.distanceToStopChasing)
+        self._chase(self.entity, entityX, targetX, entityY, targetY, disX, disY, self.distanceToChangeDirection)
     else
         self.stateMachine:change(self.idleState)
     end

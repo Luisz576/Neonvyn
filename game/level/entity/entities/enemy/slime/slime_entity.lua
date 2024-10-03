@@ -124,7 +124,7 @@ function SlimeEntity:_registerStates()
     -- idle
     self.stateMachine:registerState("idle", EnemyIdleState:new(self, { min = 1, max = 5 }, self.viewDistance, self.agentsGroup, "chasing"))
     -- chase
-    self.stateMachine:registerState("chasing", EntityChasingState:new(self, self.viewDistance, "idle"))
+    self.stateMachine:registerState("chasing", EntityChasingState:new(self, self.viewDistance, "idle", 20))
 end
 
 -- animate
