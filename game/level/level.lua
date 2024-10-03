@@ -1,7 +1,7 @@
 local sti = require 'libraries.sti'
 local Groups = require "game.groups"
-local Player = require "game.level.entity.entities.player"
-local Slime = require "game.level.entity.entities.slime"
+local AgentRickEntity = require "game.level.entity.entities.agent.rick.agent_rick_entity"
+local Slime = require "game.level.entity.entities.enemy.slime"
 local ItemEntity = require "game.level.entity.entities.item_entity"
 local Item = require "game.level.item.item"
 local Items = require "game.level.item.items"
@@ -28,8 +28,8 @@ function Level:load()
     -- shaders
     self.shaders.sunsetShader = Shader:get("sunset")
     self.shaders.sunsetShader:send("sunset_intensity", 0.3)
-    -- player
-    Player:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, {self.groups.entitiesGroup}):spawn(100, 100)
+    -- Agent
+    AgentRickEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, {self.groups.entitiesGroup}):spawn(100, 100)
     -- spawn random slimes
     for i = 1, 10, 1 do
         Slime.Slime:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, Slime.SlimeData.NORMAL):spawn(math.random(0, 600), math.random(0, 600))

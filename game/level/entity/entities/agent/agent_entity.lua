@@ -11,29 +11,31 @@ local Inventory = require "game.level.inventory.inventory"
 local Hurtbox = require "game.components.hutbox"
 local DamageType = require "game.components.damage_source".DamageType
 
-local Player = setmetatable({}, LivingEntity)
-Player.__index = Player
+local AgentEntity = setmetatable({}, LivingEntity)
+AgentEntity.__index = AgentEntity
 
-local PlayerConfiguration = {
-    maxBaseHealth = 10,
-    inventoryBaseSize = 5,
-    baseReceivingDamageTime = 0.1,
-    attackDistance = 40,
-    playerBaseDamage = 2,
-    criticalBasePercent = 10,
-    criticalMultiplier = 2,
-}
+---@class AgentData
+---@field name string
+---@field maxBaseHealth integer
+---@field inventoryBaseSize integer
+---@field baseReceivingDamageTime number
+---@field attackDistance integer
+---@field baseDamage integer
+---@field criticalBasePercent integer
+---@field criticalMultiplier integer
 
 -- constructor
-function Player:new(level, groups, collisionGroups, attackableGroup)
+---@param agentData AgentData
+function AgentEntity:new(level, agentData, groups, collisionGroups, attackableGroup)
     local scale = 2
-    local instance = LivingEntity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, level, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1, PlayerConfiguration.maxBaseHealth, PlayerConfiguration.baseReceivingDamageTime)
+    local instance = LivingEntity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, level, 17 * scale, 25 * scale, groups, collisionGroups, 1, 1, agentData.maxBaseHealth, agentData.baseReceivingDamageTime)
 
     -- attributes
+    instance.agentData = agentData
     instance.canPickupItem = true
 
     -- components
-    instance.inventory = Inventory:new(PlayerConfiguration.inventoryBaseSize, "Player's Inventory")
+    instance.inventory = Inventory:new(agentData.inventoryBaseSize, "Agent's Inventory")
     instance.attackHurtbox = Hurtbox:new(instance, 0, 0, 17 * scale, 25 * scale, attackableGroup, instance, "_onAttackHurtboxJoin", nil)
     instance.attackHurtbox.actived = false
 
@@ -46,6 +48,7 @@ function Player:new(level, groups, collisionGroups, attackableGroup)
     instance.sprite.spriteSheet = love.graphics.newImage("assets/entities/player.png")
     instance.sprite.grid = AnimationGrid:new(17, 25, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
     instance.sprite.scale = scale
+    -- TODO: remove up and down (keep left and right)
     instance.sprite.animationController = AnimationController:new({
         -- idle
         idle_down = Animation:new(instance.sprite.grid:frames({
@@ -109,7 +112,7 @@ function Player:new(level, groups, collisionGroups, attackableGroup)
 end
 
 -- stop attacking
-function Player:_stopAttacking()
+function AgentEntity:_stopAttacking()
     -- stop attacking
     self.attacking = false
     self.attackingAlreadyTryGiveDamage = false
@@ -117,7 +120,7 @@ function Player:_stopAttacking()
 end
 
 -- start attacking
-function Player:_attack()
+function AgentEntity:_attack()
     if not self.state.receivingDamage and not self.attacking then
         self.attacking = true
         self.attackingAlreadyTryGiveDamage = false
@@ -125,7 +128,7 @@ function Player:_attack()
 end
 
 -- input
-function Player:_input()
+function AgentEntity:_input()
     -- moviment controls
     -- move in x
     self.velocity.x = (love.keyboard.isDown("d") and 1 or 0) + (love.keyboard.isDown("a") and -1 or 0)
@@ -138,7 +141,7 @@ function Player:_input()
 end
 
 -- animate
-function Player:_animate(dt)
+function AgentEntity:_animate(dt)
     local animationName = "idle"
     local animationDirection = self.sprite.direction
 
@@ -173,7 +176,7 @@ end
 
 -- pickup item
 ---@return integer
-function Player:pickupItem(item)
+function AgentEntity:pickupItem(item)
     if self.canPickupItem then
         -- TODO: make in just one line
         local remainingAmount = self.inventory:add(item)
@@ -184,15 +187,15 @@ function Player:pickupItem(item)
 end
 
 -- calculate damage
-function Player:_calculateDamageTo(sprite)
-    if PlayerConfiguration.criticalBasePercent > math.random(1, 100) then
-        return PlayerConfiguration.playerBaseDamage * PlayerConfiguration.criticalMultiplier
+function AgentEntity:_calculateDamageTo(sprite)
+    if self.agentData.criticalBasePercent > math.random(1, 100) then
+        return self.agentData.baseDamage * self.agentData.criticalMultiplier
     end
-    return PlayerConfiguration.playerBaseDamage
+    return self.agentData.baseDamage
 end
 
 -- _onAttackHurtboxJoin
-function Player:_onAttackHurtboxJoin(sprite)
+function AgentEntity:_onAttackHurtboxJoin(sprite)
     print(sprite, sprite.health)
     -- give the damage
     if sprite.health ~= nil then
@@ -201,39 +204,39 @@ function Player:_onAttackHurtboxJoin(sprite)
 end
 
 -- on die
-function Player:_onDie(source)
+function AgentEntity:_onDie(source)
     print("GAME OVER")
     -- super
     LivingEntity.destroy(self)
 end
 
 -- update components
-function Player:updateComponents()
+function AgentEntity:updateComponents()
     -- attack hurtbox
     -- down
     if self.sprite.direction == Direction.down then
         self.attackHurtbox:setCenterX(self.rect:centerX())
-        self.attackHurtbox.y = self.rect.y + PlayerConfiguration.attackDistance / 2
-        self.attackHurtbox:setSize(self.rect.height, PlayerConfiguration.attackDistance)
+        self.attackHurtbox.y = self.rect.y + self.agentData.attackDistance / 2
+        self.attackHurtbox:setSize(self.rect.height, self.agentData.attackDistance)
     -- left
     elseif self.sprite.direction == Direction.left then
-        self.attackHurtbox:setXY(self.rect.x - PlayerConfiguration.attackDistance / 2, self.rect.y)
-        self.attackHurtbox:setSize(PlayerConfiguration.attackDistance, self.rect.height)
+        self.attackHurtbox:setXY(self.rect.x - self.agentData.attackDistance / 2, self.rect.y)
+        self.attackHurtbox:setSize(self.agentData.attackDistance, self.rect.height)
     -- right
     elseif self.sprite.direction == Direction.right then
-        self.attackHurtbox:setXY(self.rect.x + PlayerConfiguration.attackDistance / 2, self.rect.y)
-        self.attackHurtbox:setSize(PlayerConfiguration.attackDistance, self.rect.height)
+        self.attackHurtbox:setXY(self.rect.x + self.agentData.attackDistance / 2, self.rect.y)
+        self.attackHurtbox:setSize(self.agentData.attackDistance, self.rect.height)
     -- up
     else
         self.attackHurtbox:setCenterX(self.rect:centerX())
-        self.attackHurtbox.y = self.rect.y - PlayerConfiguration.attackDistance / 2
-        self.attackHurtbox:setSize(self.rect.height, PlayerConfiguration.attackDistance)
+        self.attackHurtbox.y = self.rect.y - self.agentData.attackDistance / 2
+        self.attackHurtbox:setSize(self.rect.height, self.agentData.attackDistance)
     end
     self.attackHurtbox:update()
 end
 
 -- attacking state
-function Player:_attacking()
+function AgentEntity:_attacking()
     self.velocity:set(0, 0)
     self.attackHurtbox.actived = false
 
@@ -248,7 +251,7 @@ function Player:_attacking()
 end
 
 -- onReceivingDamage
-function Player:_onReceivingDamageState(dt)
+function AgentEntity:_onReceivingDamageState(dt)
     -- stop attacking if receiving damage
     self:_stopAttacking()
     -- super
@@ -256,7 +259,7 @@ function Player:_onReceivingDamageState(dt)
 end
 
 -- state manager
-function Player:_state(dt)
+function AgentEntity:_state(dt)
     self.canMove = true
     -- receiving damage
     if self.state.receivingDamage then
@@ -268,7 +271,7 @@ function Player:_state(dt)
 end
 
 -- update
-function Player:update(dt)
+function AgentEntity:update(dt)
     -- input
     self:_input()
     -- state manager
@@ -282,7 +285,7 @@ function Player:update(dt)
 end
 
 -- draw
-function Player:draw()
+function AgentEntity:draw()
     local needsToReplaceShader, oldShader = false, nil
     -- damage shader
     if self.state.receivingDamage then
@@ -293,7 +296,7 @@ function Player:draw()
         -- intensity
         self.sprite.shaders.damage_flash:send("flash_intensity", percentOfReceivingDamage)
     end
-    -- draw player sprite
+    -- draw sprite
     self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
     -- clear shader
     if needsToReplaceShader then
@@ -301,4 +304,4 @@ function Player:draw()
     end
 end
 
-return Player
+return AgentEntity

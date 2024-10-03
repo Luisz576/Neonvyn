@@ -24,10 +24,6 @@ function Entity:new(entityType, level, width, height, groups, collisionGroups, h
     instance.speed = 200
     instance.canMove = true
 
-    instance.__gc = function ()
-        print("I WAS DELETED")
-    end
-
     -- groups
     instance.collisionGroups = collisionGroups or {}
     instance.entityGroup = instance:getGroup(Groups.ENTITY)

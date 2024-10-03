@@ -1,2 +1,2 @@
-# SimpleRPG-love2d
+# Neonvyn
 A game to practice love2d

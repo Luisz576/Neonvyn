@@ -15,7 +15,7 @@ local LookAtTargetGoal = require "game.level.entity.ai.look_at_target_goal"
 local ChaseTargetGoal = require "game.level.entity.ai.chase_target_goal"
 local SetTargetGoal = require "game.level.entity.ai.set_target_goal"
 local TriggerTargetDistanceGoal = require "game.level.entity.ai.trigger_target_distance_goal"
-local Player = require "game.level.entity.entities.player"
+local AgentEntity = require "game.level.entity.entities.agent.agent_entity"
 
 local Slime = setmetatable({}, NPEntity)
 Slime.__index = Slime
@@ -83,6 +83,7 @@ function Slime:new(level, groups, collisionGroups, slimeData)
     instance.sprite.spriteSheet = love.graphics.newImage(slimeData.spriteSheetPath)
     instance.sprite.grid = AnimationGrid:new(slimeData.spriteFrameWidth, slimeData.spriteFrameHeight, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
     instance.sprite.scale = slimeData.spriteScale
+    -- TODO: remove up and down (keep left and right)
     instance.sprite.animationController = AnimationController:new({
         -- idle
         idle_down = Animation:new(instance.sprite.grid:frames({
@@ -156,9 +157,9 @@ end
 -- register slime goals
 function Slime:_registerGoals()
     -- look to target even stopped
-    self:addGoal(LookAtTargetGoal:new(self, {Player}, {self.entityGroup}, self.goalsConfiguration.viewDistance))
+    self:addGoal(LookAtTargetGoal:new(self, {AgentEntity}, {self.entityGroup}, self.goalsConfiguration.viewDistance))
     -- set_target_goal
-    self:addGoal(SetTargetGoal:new(self, {Player}, {self.entityGroup}, self.goalsConfiguration.viewDistance))
+    self:addGoal(SetTargetGoal:new(self, {AgentEntity}, {self.entityGroup}, self.goalsConfiguration.viewDistance))
     -- chase_target_goal
     self:addGoal(ChaseTargetGoal:new(self, nil, self.goalsConfiguration.distanceToStopChasing))
     -- attack trigger
@@ -311,7 +312,7 @@ function Slime:draw()
         -- intensity
         self.sprite.shaders.damage_flash:send("flash_intensity", percentOfReceivingDamage)
     end
-    -- draw player sprite
+    -- draw sprite
     self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
     -- clear shader
     if needsToReplaceShader then
