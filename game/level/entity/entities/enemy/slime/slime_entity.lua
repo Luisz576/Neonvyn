@@ -9,6 +9,8 @@ local EntityClassification = require "game.level.entity.entity_classification"
 local Groups = require "game.groups"
 local Shader = require "game.shader".Shader
 local DamageType = require "game.components.damage_source".DamageType
+-- states
+local EntityWalkAroundState = require "game.level.entity.entities.states.entity_walk_around_state"
 
 local SlimeEntity = setmetatable({}, LivingEntity)
 SlimeEntity.__index = SlimeEntity
@@ -106,7 +108,17 @@ function SlimeEntity:new(level, groups, collisionGroups, slimeData)
     instance.sprite.spriteFixX = slimeData.spriteFixX or 0
     instance.sprite.spriteFixY = slimeData.spriteFixY or 0
 
+    -- states
+    SlimeEntity._registerStates(instance)
+    instance.stateMachine:change("idle")
+
     return setmetatable(instance, self)
+end
+
+-- register states
+function SlimeEntity:_registerStates()
+    -- idle
+    self.stateMachine:registerState("idle", EntityWalkAroundState:new(self, { min = 1, max = 5 }))
 end
 
 -- animate
