@@ -2,6 +2,7 @@ local pointsDis = require "libraries.llove.math".pointsDis
 local effectFunction = require "libraries.llove.easing".Easings.EaseInCubic
 local Entity = require "game.level.entity.entity"
 local EntityType = require "game.level.entity.entity_type"
+local EntityChasingState = require "game.level.entity.entities.states.entity_chasing_state"
 
 local ItemEntity = setmetatable({}, Entity)
 ItemEntity.__index = ItemEntity
@@ -33,6 +34,7 @@ function ItemEntity:update(dt)
     local sprites = self.catcherGroup:sprites()
     for _, sprite in pairs(sprites) do
         if sprite.pickupItem ~= nil then
+            -- TODO: create State
             -- TODO: don't be attracted if sprite can't get items right now (because of full inventory, etc...)
             local spriteCenter, selfCenter = sprite.rect:center(), self.rect:center()
             local dis = pointsDis(selfCenter, spriteCenter)
@@ -46,10 +48,9 @@ function ItemEntity:update(dt)
                     end
                     return
                 end
-                -- TODO: fix this
                 -- attract
                 local disX, disY = selfCenter.x - spriteCenter.x, selfCenter.y - spriteCenter.y
-                -- TODO: ChaseTargetGoal._chase(self, selfCenter.x, spriteCenter.x, selfCenter.y, spriteCenter.y, math.abs(disX), math.abs(disY), self.distanceToChangeDirectionWhenBeenAttracted)
+                EntityChasingState._chase(self, selfCenter.x, spriteCenter.x, selfCenter.y, spriteCenter.y, math.abs(disX), math.abs(disY), self.distanceToChangeDirectionWhenBeenAttracted)
                 -- effect of been attracted
                 local progress = 1 - effectFunction.ratio(dis, self.attractableDistance)
                 local effectFunctionRes = effectFunction.f(progress)

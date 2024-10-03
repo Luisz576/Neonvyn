@@ -14,12 +14,6 @@ function LivingEntity:new(entityType, entityClassification, level, width, height
     instance.entityClassification = entityClassification
     instance.dropLootType = 0
 
-    -- state
-    instance.state = instance.state or {}
-    instance.state.receivingDamage = false
-    instance.state.receivingDamageTime = receivingDamageTime or 0.1
-    instance.state.receivingDamageDelta = 0
-
     -- components
     instance.health = Health:new(instance, maxHealth)
     instance.health:addListener(instance, "_onHeal", "_onHurt")
@@ -38,23 +32,13 @@ function LivingEntity:_stopReceivingDamage()
     self.state.receivingDamage = false
 end
 
--- onReceivingDamage
-function LivingEntity:_onReceivingDamageState(dt)
-    self.canMove = false
-    self.state.receivingDamageDelta = self.state.receivingDamageDelta - dt
-    -- stop receiving damage
-    if self.state.receivingDamageDelta <= 0 then
-        self:_stopReceivingDamage()
-        self.canMove = true
-    end
-end
-
 -- on die
 function LivingEntity:_onDie(source)
     self:_dropLoot()
     self:destroy()
 end
 
+-- drop loot
 function LivingEntity:_dropLoot()
     if self.dropLootType > 0 then
         if self.dropLootType == 1 then

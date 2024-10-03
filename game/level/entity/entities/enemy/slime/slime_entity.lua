@@ -2,13 +2,12 @@ local Animation = require "libraries.llove.animation".Animation
 local AnimationGrid = require "libraries.llove.animation".AnimationGrid
 local AnimationController = require "libraries.llove.animation".AnimationController
 local Direction = require "libraries.llove.util".Direction
-local pointsDis = require "libraries.llove.math".pointsDis
 local LivingEntity = require "game.level.entity.living_entity"
 local EntityType = require "game.level.entity.entity_type"
 local EntityClassification = require "game.level.entity.entity_classification"
+local SpriteComponent = require "game.components.sprite_component"
 local Groups = require "game.groups"
 local Shader = require "game.shader".Shader
-local DamageType = require "game.components.damage_source".DamageType
 -- states
 local EnemyIdleState = require "game.level.entity.entities.states.enemy_idle_state"
 local EntityChasingState = require "game.level.entity.entities.states.entity_chasing_state"
@@ -16,6 +15,7 @@ local EntityChasingState = require "game.level.entity.entities.states.entity_cha
 local SlimeEntity = setmetatable({}, LivingEntity)
 SlimeEntity.__index = SlimeEntity
 
+-- TODO: move to a new file "GreenSlimeEntity", "IceSlimeEntity", ...
 local SlimeData = {
     NORMAL = {
         width = 14,
@@ -90,10 +90,8 @@ function SlimeEntity:new(level, groups, collisionGroups, agentsGroup, slimeData)
     instance.agentsGroup = agentsGroup
 
     -- animationa
-    instance.sprite = {}
-    instance.sprite.spriteSheet = love.graphics.newImage(slimeData.spriteSheetPath)
-    instance.sprite.grid = AnimationGrid:new(slimeData.spriteFrameWidth, slimeData.spriteFrameHeight, instance.sprite.spriteSheet:getWidth(), instance.sprite.spriteSheet:getHeight())
-    instance.sprite.scale = slimeData.spriteScale
+    instance.sprite = SpriteComponent:new(love.graphics.newImage(slimeData.spriteSheetPath), slimeData.spriteScale)
+    instance.sprite.grid = AnimationGrid:new(slimeData.spriteFrameWidth, slimeData.spriteFrameHeight, instance.sprite.texture:getWidth(), instance.sprite.texture:getHeight())
     local slimeAnimations = {}
     for name, config in pairs(slimeData.animations) do
         slimeAnimations[name] = Animation:new(instance.sprite.grid:frames({
@@ -109,8 +107,8 @@ function SlimeEntity:new(level, groups, collisionGroups, agentsGroup, slimeData)
     }
 
     -- sprite fix
-    instance.sprite.spriteFixX = slimeData.spriteFixX or 0
-    instance.sprite.spriteFixY = slimeData.spriteFixY or 0
+    instance.sprite.offsetX = slimeData.spriteFixX or 0
+    instance.sprite.offsetY = slimeData.spriteFixY or 0
 
     -- states
     SlimeEntity._registerStates(instance)
@@ -122,7 +120,7 @@ end
 -- register states
 function SlimeEntity:_registerStates()
     -- idle
-    self.stateMachine:registerState("idle", EnemyIdleState:new(self, { min = 1, max = 5 }, self.viewDistance, self.agentsGroup, "chasing"))
+    self.stateMachine:registerState("idle", EnemyIdleState:new(self, { min = 5, max = 10 }, self.viewDistance, self.agentsGroup, "chasing"))
     -- chase
     self.stateMachine:registerState("chasing", EntityChasingState:new(self, self.viewDistance, "idle", 20))
 end
@@ -149,58 +147,12 @@ function SlimeEntity:_animate(dt)
         animationDirection = Direction.left
     end
     self.sprite.direction = animationDirection
-    self.sprite.animationController:animation().flippedX = (animationDirection == Direction.left)
-
+    
     -- set animation
     self.sprite.animationController:change(animationName)
+    self.sprite.animationController:animation().flippedX = (animationDirection == Direction.left)
     -- update animation
     self.sprite.animationController:update(dt)
-end
-
--- TODO: remove this kind of attack and replace by many attack types
--- stop attacking
-function SlimeEntity:_stopAttacking()
-    -- reset trigger
-    self.goalsConfiguration.attackTriggerGoal:reset()
-    -- stop attacking
-    self.attacking = false
-    self.attackingAlreadyTryGiveDamage = false
-    self.attackingTarget = nil
-end
-
--- attacking logic
-function SlimeEntity:_attacking()
-    self.velocity:set(0, 0)
-
-    if self.sprite.animationController:animation():isFrame(5) then -- give damage
-        if not self.attackingAlreadyTryGiveDamage then
-            local targetPos = self.attackingTarget.rect:center()
-            if pointsDis(self.rect:center(), targetPos) <= self.goalsConfiguration.attackRange then
-                self.attackingAlreadyTryGiveDamage = true
-                if self.attackingTarget.health ~= nil then
-                    -- really give the damage
-                    self.attackingTarget.health:hurt(self:_calculateDamageTo(self.attackingTarget), DamageType.BY_ENTITY, self)
-                end
-            end
-        end
-    elseif self.sprite.animationController:animation():isLastFrame() then -- stop animation
-        self:_stopAttacking()
-    end
-end
-
--- calculate the amount of damage
-function SlimeEntity:_calculateDamageTo(sprite)
-    if self.criticalBasePercent > math.random(1, 100) then
-        return self.damage * self.criticalMultiplier
-    end
-    return self.damage
-end
-
--- attack handler
-function SlimeEntity:_attackHandler(target)
-    self.attackingTarget = target
-    self.attackingAlreadyTryGiveDamage = false
-    self.attacking = true
 end
 
 -- slime behaviour
@@ -220,29 +172,11 @@ function SlimeEntity:_slimeBehaviour(dt)
     end
 end
 
--- onReceivingDamage
-function SlimeEntity:_onReceivingDamageState(dt)
-    -- stop attacking if receiving damage
-    self:_stopAttacking()
-    -- super
-    LivingEntity._onReceivingDamageState(self, dt)
-end
-
 -- state manager
 function SlimeEntity:_state(dt)
-    -- receivingDamage
-    -- if self.state.receivingDamage then
-    --     self:_onReceivingDamageState(dt)
-    -- -- attacking
-    -- elseif self.attacking then
-    --     self:_attacking()
-    -- else
-    --     -- slime behavior
-    --     self:_slimeBehaviour(dt)
-    -- end
-
     self.canMove = true
-
+    -- receivingDamage
+    self:_slimeBehaviour(dt)
     -- super
     LivingEntity._state(self, dt)
 end
@@ -250,17 +184,9 @@ end
 -- draw
 function SlimeEntity:draw()
     local needsToReplaceShader, oldShader = false, nil
-    -- damage shader
-    if self.state.receivingDamage then
-        needsToReplaceShader = true
-        oldShader = love.graphics:getShader()
-        love.graphics.setShader(self.sprite.shaders.damage_flash)
-        local percentOfReceivingDamage = (self.state.receivingDamageDelta / self.state.receivingDamageTime)
-        -- intensity
-        self.sprite.shaders.damage_flash:send("flash_intensity", percentOfReceivingDamage)
-    end
+    -- TODO: damage shader
     -- draw sprite
-    self.sprite.animationController:draw(self.sprite.spriteSheet, self.rect.x, self.rect.y, nil, self.sprite.scale)
+    self.sprite.animationController:draw(self.sprite.texture, self.rect.x, self.rect.y, nil, self.sprite.scale)
     -- clear shader
     if needsToReplaceShader then
         love.graphics.setShader(oldShader)
