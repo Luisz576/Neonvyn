@@ -111,6 +111,7 @@ function AgentEntity:new(level, agentData, groups, collisionGroups, attackableGr
     return setmetatable(instance, self)
 end
 
+-- TODO: remove this attack (replace by many attack types)
 -- stop attacking
 function AgentEntity:_stopAttacking()
     -- stop attacking

@@ -201,6 +201,7 @@ function Slime:_animate(dt)
     self.sprite.animationController:update(dt)
 end
 
+-- TODO: remove this kind of attack and replace by many attack types
 -- stop attacking
 function Slime:_stopAttacking()
     -- reset trigger
