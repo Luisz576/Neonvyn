@@ -30,7 +30,6 @@ function Entity:new(entityType, level, width, height, groups, collisionGroups, h
 
     -- groups
     instance.collisionGroups = collisionGroups or {}
-    instance.entityGroup = instance:getGroup(Groups.ENTITY)
 
     return setmetatable(instance, self)
 end
@@ -57,9 +56,14 @@ function Entity:pos()
 end
 
 -- set position of entity
-function Entity:teleportTo(x, y)
+function Entity:teleportToXY(x, y)
     self.rect.x = x
     self.rect.y = y
+end
+-- set position of entity
+function Entity:teleportTo(pos)
+    self.rect.x = pos.x
+    self.rect.y = pos.y
 end
 
 -- return if player is moving

@@ -27,7 +27,7 @@ AgentEntity.__index = AgentEntity
 ---@field baseDamage integer
 ---@field criticalBasePercent integer
 ---@field criticalMultiplier integer
----@field spriteScale number
+---@field sprite { scale: number, width: number, height: number }
 ---@field animations any
 
 -- constructor
@@ -43,14 +43,14 @@ function AgentEntity:new(level, agentData, groups, collisionGroups, attackableGr
     instance.inventory = Inventory:new(agentData.inventoryBaseSize, "Agent's Inventory")
 
     -- animationa
-    instance.sprite = SpriteComponent:new(love.graphics.newImage("assets/entities/player.png"), agentData.spriteScale)
-    instance.sprite.grid = AnimationGrid:new(17, 25, instance.sprite.texture:getWidth(), instance.sprite.texture:getHeight())
+    instance.sprite = SpriteComponent:new(love.graphics.newImage("assets/entities/player.png"), agentData.sprite.scale)
+    instance.sprite.grid = AnimationGrid:new(agentData.sprite.width, agentData.sprite.height, instance.sprite.texture:getWidth(), instance.sprite.texture:getHeight())
     local agentAnimations = {}
     for name, config in pairs(agentData.animations) do
         agentAnimations[name] = Animation:new(instance.sprite.grid:frames({
             frameXInterval = config.frameXInterval,
             frameYInterval = config.frameYInterval
-        }), config.speed, agentData.spriteScale)
+        }), config.speed, agentData.sprite.scale)
     end
     instance.sprite.animationController = AnimationController:new(agentAnimations, "idle", true)
     instance.sprite.direction = Direction.right

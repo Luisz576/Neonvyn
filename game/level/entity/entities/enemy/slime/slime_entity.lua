@@ -86,7 +86,6 @@ function SlimeEntity:new(level, groups, collisionGroups, agentsGroup, slimeData)
     instance.attackingTarget = nil
 
     -- groups
-    instance.entityGroup = instance.getGroup(instance, Groups.ENTITY)
     instance.agentsGroup = agentsGroup
 
     -- animationa
@@ -102,9 +101,7 @@ function SlimeEntity:new(level, groups, collisionGroups, agentsGroup, slimeData)
     instance.sprite.animationController = AnimationController:new(slimeAnimations, "idle", true)
     instance.sprite.direction = Direction.right
     -- shaders
-    instance.sprite.shaders = {
-        damage_flash = Shader:get("damage_flash")
-    }
+    instance.sprite.shaders['damage_flash'] = Shader:get("damage_flash")
 
     -- sprite fix
     instance.sprite.offsetX = slimeData.spriteFixX or 0

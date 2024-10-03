@@ -15,7 +15,11 @@ local AgentRickData = {
     baseDamage = 2,
     criticalBasePercent = 10,
     criticalMultiplier = 2,
-    spriteScale = 2,
+    sprite = {
+        scale = 2,
+        width = 17,
+        height = 25
+    },
     animations = {
         idle = {
             frameXInterval = '1-6',
