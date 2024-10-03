@@ -1,4 +1,4 @@
-local AgentEntity = require "game.level.entity.entities.agent.agent_entity"
+local AgentEntity = require "game.level.entity.agent.agent_entity"
 
 local AgentRickEntity = setmetatable({}, AgentEntity)
 AgentRickEntity.__index = AgentRickEntity

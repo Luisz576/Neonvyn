@@ -1,8 +1,8 @@
 local sti = require 'libraries.sti'
 local Groups = require "game.groups"
-local AgentRickEntity = require "game.level.entity.entities.agent.rick.agent_rick_entity"
-local SlimeEntity = require "game.level.entity.entities.enemy.slime.slime_entity"
-local ItemEntity = require "game.level.entity.entities.item_entity"
+local AgentRickEntity = require "game.level.entity.agent.rick.agent_rick_entity"
+local GreenSlimeEntity = require "game.level.entity.enemy.slime.green_slime_entity"
+local ItemEntity = require "game.level.entity.item_entity"
 local Item = require "game.level.item.item"
 local Items = require "game.level.item.items"
 local Shader = require "game.shader".Shader
@@ -33,7 +33,7 @@ function Level:load()
     AgentRickEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup, self.groups.agentsGroup}, {}, {self.groups.entitiesGroup}):spawn(100, 100)
     -- spawn random slimes
     for i = 1, 10, 1 do
-        SlimeEntity.SlimeEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, self.groups.agentsGroup, SlimeEntity.SlimeData.NORMAL):spawn(math.random(0, 600), math.random(0, 600))
+        GreenSlimeEntity:new(self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, self.groups.agentsGroup):spawn(math.random(0, 600), math.random(0, 600))
     end
     for i = 1, 5, 1 do
         ItemEntity:new(Item:new(Items.APPLE, 2), self, {self.groups.spritesRender, self.groups.entitiesGroup}, {}, self.groups.entitiesGroup):spawn(math.random(0, 600), math.random(0, 600))

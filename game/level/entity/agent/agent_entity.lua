@@ -33,7 +33,7 @@ AgentEntity.__index = AgentEntity
 -- constructor
 ---@param agentData AgentData
 function AgentEntity:new(level, agentData, groups, collisionGroups, attackableGroup)
-    local instance = LivingEntity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, level, agentData.width, agentData.height, groups, collisionGroups, 1, 1, agentData.maxBaseHealth, agentData.baseReceivingDamageTime)
+    local instance = LivingEntity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, level, agentData.width, agentData.height, groups, collisionGroups, 1, 1, agentData.maxBaseHealth)
 
     -- attributes
     instance.agentData = agentData
@@ -130,7 +130,6 @@ end
 
 -- state manager
 function AgentEntity:_state(dt)
-    self.canMove = true
     -- super
     LivingEntity._state(self, dt)
 end
@@ -148,7 +147,7 @@ function AgentEntity:draw()
     local needsToReplaceShader, oldShader = false, nil
     -- TODO: damage shader
     -- draw sprite
-    self.sprite.animationController:draw(self.sprite.texture, self.rect.x, self.rect.y, nil, self.sprite.scale)
+    self.sprite.animationController:draw(self.sprite.texture, self.rect.x, self.rect.y, nil, self.sprite.scale, self.sprite.scale)
     -- clear shader
     if needsToReplaceShader then
         love.graphics.setShader(oldShader)

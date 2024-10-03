@@ -6,7 +6,7 @@ LivingEntity.__index = LivingEntity
 
 -- constructor
 -- TODO: remove instance.state
-function LivingEntity:new(entityType, entityClassification, level, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY, maxHealth, receivingDamageTime)
+function LivingEntity:new(entityType, entityClassification, level, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY, maxHealth)
     local instance = Entity:new(entityType, level, width, height, groups, collisionGroups, hitboxRelationX, hitboxRelationY)
 
     -- attributes
@@ -24,12 +24,6 @@ end
 -- current health
 function LivingEntity:getHealth()
     return self.health.h
-end
-
--- stop receiving damage
-function LivingEntity:_stopReceivingDamage()
-    self.state.receivingDamageDelta = 0
-    self.state.receivingDamage = false
 end
 
 -- on die
@@ -56,10 +50,7 @@ function LivingEntity:_onHeal(source) end
 -- on get hurted
 function LivingEntity:_onHurt(source)
     -- verification if can receive damage
-    if not self.state.receivingDamage and not self.invulnerable then
-        -- set receiving damage state
-        self.state.receivingDamage = true
-        self.state.receivingDamageDelta = self.state.receivingDamageTime
+    if not self.invulnerable then
         print(self.health.h .. " / " .. self.health.mh)
         if self.health.h <= 0 then
             self:_onDie(source)

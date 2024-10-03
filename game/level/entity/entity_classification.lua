@@ -1,3 +1,4 @@
+---@enum EntityClassification
 local EntityClassification = {
     PEACEFUL = 1,
     AGGRESSIVE = 2

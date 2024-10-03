@@ -2,7 +2,7 @@ local pointsDis = require "libraries.llove.math".pointsDis
 local effectFunction = require "libraries.llove.easing".Easings.EaseInCubic
 local Entity = require "game.level.entity.entity"
 local EntityType = require "game.level.entity.entity_type"
-local EntityChasingState = require "game.level.entity.entities.states.entity_chasing_state"
+local EntityChasingState = require "game.level.entity.enemy.states.entity_chasing_state"
 
 local ItemEntity = setmetatable({}, Entity)
 ItemEntity.__index = ItemEntity
