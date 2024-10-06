@@ -57,8 +57,8 @@ local GreenSlimeData = {
 GreenSlimeData.__index = GreenSlimeData
 
 -- constructor
-function GreenSlimeEntity:new(level, groups, collisionGroups, agentsGroup)
-    local instance = SlimeEntity:new(level, groups, collisionGroups, GreenSlimeData)
+function GreenSlimeEntity:new(level, groups, agentsGroup)
+    local instance = SlimeEntity:new(level, groups, GreenSlimeData)
 
     -- attributes
     instance.viewDistance = GreenSlimeData.viewDistance

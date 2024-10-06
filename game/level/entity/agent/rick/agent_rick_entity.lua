@@ -41,8 +41,8 @@ local AgentRickData = {
 }
 
 -- constructor
-function AgentRickEntity:new(level, groups, collisionGroups)
-    local instance = AgentEntity:new(level, groups, collisionGroups, AgentRickData)
+function AgentRickEntity:new(level, groups)
+    local instance = AgentEntity:new(level, groups, AgentRickData)
 
     -- animations
     instance.sprite = SpriteComponent:new(love.graphics.newImage("assets/entities/player.png"), AgentRickData.sprite.scale)

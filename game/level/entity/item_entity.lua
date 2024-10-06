@@ -8,8 +8,8 @@ local ItemEntity = setmetatable({}, Entity)
 ItemEntity.__index = ItemEntity
 
 -- constructor
-function ItemEntity:new(item, level, groups, collisionGroups, catcherGroup, hitboxRelationX, hitboxRelationY)
-    local instance = Entity:new(EntityType.ITEM, level, 16, 16, groups, collisionGroups, hitboxRelationX, hitboxRelationY)
+function ItemEntity:new(item, level, groups, catcherGroup)
+    local instance = Entity:new(EntityType.ITEM, level, 16, 16, groups)
     -- item
     instance.item = item
     -- catch
