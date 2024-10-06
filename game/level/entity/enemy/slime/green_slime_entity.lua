@@ -58,7 +58,13 @@ GreenSlimeData.__index = GreenSlimeData
 
 -- constructor
 function GreenSlimeEntity:new(level, groups, agentsGroup)
-    local instance = SlimeEntity:new(level, groups, GreenSlimeData)
+    -- collider
+    -- TODO: fix size
+    local slimeCollider = level.world:newBSGRectangleCollider(0, 0, 40, 80, 14)
+    slimeCollider:setFixedRotation(true)
+
+    -- instance
+    local instance = SlimeEntity:new(level, groups, slimeCollider, GreenSlimeData)
 
     -- attributes
     instance.viewDistance = GreenSlimeData.viewDistance

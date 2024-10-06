@@ -18,8 +18,8 @@ AgentEntity.__index = AgentEntity
 
 -- constructor
 ---@param agentData AgentData
-function AgentEntity:new(level, groups, agentData)
-    local instance = LivingEntity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, level, agentData.width, agentData.height, groups, agentData.maxBaseHealth)
+function AgentEntity:new(level, groups, collider, agentData)
+    local instance = LivingEntity:new(EntityType.HUMAN, EntityClassification.PEACEFUL, level, agentData.width, agentData.height, groups, collider, agentData.maxBaseHealth)
 
     -- attributes
     instance.canPickupItem = true

@@ -9,7 +9,7 @@ ItemEntity.__index = ItemEntity
 
 -- constructor
 function ItemEntity:new(item, level, groups, catcherGroup)
-    local instance = Entity:new(EntityType.ITEM, level, 16, 16, groups)
+    local instance = Entity:new(EntityType.ITEM, level, 16, 16, groups, nil)
     -- item
     instance.item = item
     -- catch

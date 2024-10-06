@@ -18,8 +18,8 @@ SlimeEntity.__index = SlimeEntity
 
 -- constructor
 ---@param slimeData SlimeData
-function SlimeEntity:new(level, groups, slimeData)
-    local instance = LivingEntity:new(EntityType.SLIME, slimeData.entityClassification, level, slimeData.width * slimeData.sprite.scale, slimeData.height * slimeData.sprite.scale, groups, slimeData.maxHealth)
+function SlimeEntity:new(level, groups, collider, slimeData)
+    local instance = LivingEntity:new(EntityType.SLIME, slimeData.entityClassification, level, slimeData.width * slimeData.sprite.scale, slimeData.height * slimeData.sprite.scale, groups, collider, slimeData.maxHealth)
 
     -- slime attributes
     instance.slime = {}

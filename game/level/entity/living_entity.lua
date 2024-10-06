@@ -6,8 +6,8 @@ LivingEntity.__index = LivingEntity
 
 -- constructor
 -- TODO: remove instance.state
-function LivingEntity:new(entityType, entityClassification, level, width, height, groups, maxHealth)
-    local instance = Entity:new(entityType, level, width, height, groups)
+function LivingEntity:new(entityType, entityClassification, level, width, height, groups, collider, maxHealth)
+    local instance = Entity:new(entityType, level, width, height, groups, collider)
 
     -- attributes
     instance.invulnerable = false

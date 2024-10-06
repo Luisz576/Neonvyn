@@ -42,7 +42,13 @@ local AgentRickData = {
 
 -- constructor
 function AgentRickEntity:new(level, groups)
-    local instance = AgentEntity:new(level, groups, AgentRickData)
+    -- collider
+    -- TODO: fix size
+    local agentCollider = level.world:newBSGRectangleCollider(0, 0, 40, 80, 14)
+    agentCollider:setFixedRotation(true)
+
+    -- instance
+    local instance = AgentEntity:new(level, groups, agentCollider, AgentRickData)
 
     -- animations
     instance.sprite = SpriteComponent:new(love.graphics.newImage("assets/entities/player.png"), AgentRickData.sprite.scale)

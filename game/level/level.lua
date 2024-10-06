@@ -26,6 +26,8 @@ function Level:new()
 end
 
 function Level:load()
+    -- world
+    self.world = wf.newWorld(0, 0)
     -- shaders
     self.shaders.sunsetShader = Shader:get("sunset")
     self.shaders.sunsetShader:send("sunset_intensity", 0.3)
@@ -57,8 +59,9 @@ end
 
 -- update
 function Level:update(dt)
-    local sprites
+    self.world:update(dt)
     -- entity update
+    local sprites
     sprites = self.groups.entitiesGroup:sprites()
     for _, entity in pairs(sprites) do
         entity:update(dt)

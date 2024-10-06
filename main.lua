@@ -7,6 +7,8 @@ local Math = require "libraries.llove.math"
 
 -- Load function
 function love.load()
+    -- import
+    _G.wf = require "libraries.windfield"
     -- prevent blurring when scale pixel
     love.graphics.setDefaultFilter("nearest", "nearest")
     -- load shaders
